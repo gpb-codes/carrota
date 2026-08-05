@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Carrota server
+server/data.db
+server/data.db-*
+server/*.sqlite
+
+# Session/test artifacts
+/opencode/
+.playwright-mcp/
+/app-initial.png
+.opencode/openwork/inbox/

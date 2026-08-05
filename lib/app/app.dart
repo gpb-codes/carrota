@@ -13,6 +13,7 @@ import '../features/negocio/negocio_screen.dart';
 import '../features/sheets/camera_sheet.dart';
 import '../features/sheets/closing_sheet.dart';
 import '../features/sheets/product_sheet.dart';
+import '../features/sheets/scan_sheet.dart';
 import '../features/sheets/shopping_sheet.dart';
 import '../features/sheets/voice_sheet.dart';
 import '../features/tienda/tienda_screen.dart';
@@ -47,6 +48,14 @@ class _Shell extends StatefulWidget {
 
 class _ShellState extends State<_Shell> {
   AppTab _tab = AppTab.inicio;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      LumoScope.of(context).loadRemote();
+    });
+  }
 
   String _now() {
     final d = DateTime.now();
@@ -198,7 +207,7 @@ class _ShellState extends State<_Shell> {
     final store = LumoScope.of(context);
     final msg = store.chat.where((m) => m.id == id).firstOrNull;
     if (msg == null || msg.kind != MsgKind.receipt) return;
-    store.receiveDelivery(msg.lines ?? []);
+    store.receiveDelivery(msg.lines ?? [], supplier: msg.supplier);
     store.updateChat(id, (m) => m.copyWith(approved: true));
   }
 
@@ -311,6 +320,17 @@ class _ShellState extends State<_Shell> {
     );
   }
 
+  void _openScanner() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => ScanSheet(
+          onOpenProduct: (p) => _openProduct(p.id),
+        ),
+      ),
+    );
+  }
+
   void _openClosing() {
     showAppSheet(context, title: 'Cierre del día', builder: (ctx) => const ClosingSheet());
   }
@@ -367,6 +387,7 @@ class _ShellState extends State<_Shell> {
                   onSend: _handleSend,
                   onVoice: _openVoice,
                   onCamera: _openCamera,
+                  onScan: _openScanner,
                 ),
               ),
               BottomNav(tab: _tab, onChange: (t) => setState(() => _tab = t)),

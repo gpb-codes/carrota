@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Carrota usa la cámara para escanear códigos de barras y capturar documentos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Carrota usa el micrófono solo si decides grabar audio con la cámara.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -6,6 +6,7 @@ class Composer extends StatefulWidget {
   final void Function(String text) onSend;
   final VoidCallback onVoice;
   final VoidCallback onCamera;
+  final VoidCallback onScan;
   final String placeholder;
 
   const Composer({
@@ -13,6 +14,7 @@ class Composer extends StatefulWidget {
     required this.onSend,
     required this.onVoice,
     required this.onCamera,
+    required this.onScan,
     this.placeholder = 'Dile algo a tu negocio…',
   });
 
@@ -66,6 +68,11 @@ class _ComposerState extends State<Composer> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            IconButton(
+              onPressed: widget.onScan,
+              icon: const Icon(Icons.qr_code_scanner_rounded, size: 22),
+              color: AppColors.mutedForeground,
+            ),
             IconButton(
               onPressed: widget.onCamera,
               icon: const Icon(Icons.camera_alt_outlined, size: 22),

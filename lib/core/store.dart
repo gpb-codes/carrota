@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
+import 'api.dart';
 import 'data.dart';
 
 enum PaymentMethod { efectivo, tarjeta, transferencia, combinado }
@@ -142,6 +145,11 @@ class LumoStore extends ChangeNotifier {
   };
   bool onboarded = false;
 
+  ApiClient api = ApiClient();
+  bool serverOnline = false;
+  bool _apiLoaded = false;
+  final Set<String> _commentsLoaded = {};
+
   int get cartCount => cart.fold(0, (sum, l) => sum + l.qty);
 
   int get cartTotal => cart.fold(
@@ -155,6 +163,153 @@ class LumoStore extends ChangeNotifier {
       if (p.id == id) return p;
     }
     return null;
+  }
+
+  Product? productByBarcode(String code) {
+    for (final p in products) {
+      if (p.barcode != null && p.barcode == code) return p;
+    }
+    return null;
+  }
+
+  Future<void> loadRemote() async {
+    if (_apiLoaded) return;
+    try {
+      final feed = await api.fetchFeed();
+      for (final v in feed) {
+        final id = v['productId'] as String?;
+        if (id == null) continue;
+        final p = productById(id);
+        if (p != null) {
+          final stock = v['stock'] as num?;
+          if (stock != null) {
+            products = [
+              for (final x in products)
+                if (x.id == id) x.copyWith(stock: stock.toInt()) else x,
+            ];
+          }
+        }
+        final likes = v['likes'] as num?;
+        if (likes != null) videoLikes[id] = likes.toInt();
+        if (v['liked'] == true) likedVideos.add(id);
+        if (v['saved'] == true) savedVideos.add(id);
+        final comments = v['comments'] as num? ?? 0;
+        if (comments > 0) await refreshVideoComments(id);
+      }
+      final cartItems = await api.fetchCart();
+      cart = [
+        for (final i in cartItems)
+          if (productById(i['productId'] as String) != null)
+            CartLine(productId: i['productId'] as String, qty: (i['qty'] as num).toInt()),
+      ];
+      serverOnline = true;
+    } catch (_) {
+      serverOnline = false;
+    }
+    if (serverOnline) {
+      await _hydrateCatalog();
+      await _hydrateEvents();
+      await _hydrateShopping();
+    }
+    _apiLoaded = true;
+    notifyListeners();
+  }
+
+  Future<void> _hydrateCatalog() async {
+    try {
+      final list = await api.fetchProducts();
+      if (list.isEmpty) return;
+      products = [
+        for (final p in list)
+          Product(
+            id: p['id'] as String,
+            name: p['name'] as String? ?? p['id'] as String,
+            unit: p['unit'] as String? ?? 'pieza',
+            price: (p['price'] as num?)?.toInt() ?? 0,
+            stock: (p['stock'] as num?)?.toInt() ?? 0,
+            emoji: p['emoji'] as String? ?? '🛒',
+            supplier: p['supplier'] as String?,
+            avgDaily: (p['avgDaily'] as num?)?.toInt(),
+            barcode: p['barcode'] as String?,
+          ),
+      ];
+    } catch (_) {
+      // sin conexión: se mantiene el catálogo local
+    }
+  }
+
+  Future<void> _hydrateEvents() async {
+    try {
+      final tl = await api.fetchEvents(type: 'tl');
+      if (tl.isNotEmpty) {
+        timeline = [
+          for (final e in tl)
+            TimelineEvent(
+              id: e['id'] as String? ?? uid(),
+              time: e['time'] as String? ?? '',
+              title: e['title'] as String? ?? '',
+              detail: e['detail'] as String?,
+              tag: e['tag'] as String?,
+            ),
+        ];
+      }
+      final mem = await api.fetchEvents(type: 'mem');
+      if (mem.isNotEmpty) {
+        memory = [
+          for (final e in mem)
+            MemoryEvent(
+              id: e['id'] as String? ?? uid(),
+              when: e['when'] as String? ?? '',
+              group: e['group'] as String? ?? 'Hoy',
+              title: e['title'] as String? ?? '',
+              detail: e['detail'] as String?,
+              kind: e['kind'] as String? ?? 'Registrado',
+            ),
+        ];
+      }
+    } catch (_) {
+      // sin conexión: se mantienen la memoria local
+    }
+  }
+
+  Future<void> _hydrateShopping() async {
+    try {
+      final items = await api.fetchShopping();
+      if (items.isEmpty) return;
+      shopping = [
+        for (final i in items)
+          ShoppingItem(
+            productId: i['productId'] as String,
+            qty: (i['qty'] as num?)?.toInt() ?? 1,
+            reason: i['reason'] as String? ?? '',
+          ),
+      ];
+    } catch (_) {
+      // sin conexión: se mantiene la lista local
+    }
+  }
+
+  Future<void> refreshVideoComments(String productId) async {
+    if (!serverOnline || _commentsLoaded.contains(productId)) return;
+    try {
+      final comments = await api.fetchComments(productId);
+      if (comments.isEmpty) return;
+      videoComments[productId] = [
+        for (final c in comments)
+          VideoComment(
+            author: c['author'] as String? ?? 'Cliente',
+            initial: (c['author'] as String?)?.isNotEmpty == true
+                ? (c['author'] as String)[0].toUpperCase()
+                : 'C',
+            text: c['text'] as String? ?? '',
+            ago: c['ago'] as String? ?? '',
+          ),
+      ];
+      _commentsLoaded.add(productId);
+      notifyListeners();
+    } catch (_) {
+      // sin conexión: se mantienen los comentarios locales
+    }
   }
 
   void setOnboarded(bool v) {
@@ -208,10 +363,20 @@ class LumoStore extends ChangeNotifier {
       ),
       ...memory,
     ];
+    if (serverOnline) {
+      unawaited(api.registerSale({
+        'lines': [
+          for (final l in sale.lines) {'product_id': l.productId, 'qty': l.qty},
+        ],
+        'payment': _payName(sale.payment),
+        'total': sale.total,
+        'authCode': sale.authCode,
+      }));
+    }
     notifyListeners();
   }
 
-  void receiveDelivery(List<SaleLine> lines) {
+  void receiveDelivery(List<SaleLine> lines, {String? supplier}) {
     products = [
       for (final p in products)
         if (lines.any((l) => l.productId == p.id))
@@ -219,6 +384,14 @@ class LumoStore extends ChangeNotifier {
         else
           p,
     ];
+    if (serverOnline) {
+      unawaited(api.registerDelivery({
+        'lines': [
+          for (final l in lines) {'product_id': l.productId, 'qty': l.qty},
+        ],
+        'supplier': ?supplier,
+      }));
+    }
     notifyListeners();
   }
 
@@ -242,6 +415,7 @@ class LumoStore extends ChangeNotifier {
       cart = [...cart, CartLine(productId: productId, qty: qty.clamp(1, stock))];
     }
     notifyListeners();
+    if (serverOnline) api.addCartItem(productId, qty: qty);
   }
 
   void setCartQty(String productId, int qty) {
@@ -255,11 +429,19 @@ class LumoStore extends ChangeNotifier {
       ];
     }
     notifyListeners();
+    if (serverOnline) {
+      if (qty <= 0) {
+        api.removeCartItem(productId);
+      } else {
+        api.setCartQty(productId, qty.clamp(1, stock));
+      }
+    }
   }
 
   void clearCart() {
     cart = [];
     notifyListeners();
+    if (serverOnline) api.clearCart();
   }
 
   void toggleVideoLike(String productId) {
@@ -271,6 +453,7 @@ class LumoStore extends ChangeNotifier {
       videoLikes[productId] = (videoLikes[productId] ?? 0) + 1;
     }
     notifyListeners();
+    if (serverOnline) api.like(productId);
   }
 
   void toggleVideoSave(String productId) {
@@ -280,6 +463,7 @@ class LumoStore extends ChangeNotifier {
       savedVideos.add(productId);
     }
     notifyListeners();
+    if (serverOnline) api.save(productId);
   }
 
   void addVideoComment(String productId, String text) {
@@ -289,6 +473,7 @@ class LumoStore extends ChangeNotifier {
       ...list,
     ];
     notifyListeners();
+    if (serverOnline) api.addComment(productId, text);
   }
 
   Sale? registerCartSale({PaymentMethod payment = PaymentMethod.efectivo}) {
@@ -337,6 +522,9 @@ class LumoStore extends ChangeNotifier {
           v.productId: [...(videoCommentsSeed[v.productId] ?? const [])],
       });
     onboarded = false;
+    serverOnline = false;
+    _apiLoaded = false;
+    _commentsLoaded.clear();
     notifyListeners();
   }
 

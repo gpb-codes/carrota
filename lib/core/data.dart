@@ -7,6 +7,7 @@ class Product {
   final String emoji;
   final String? supplier;
   final int? avgDaily;
+  final String? barcode;
 
   const Product({
     required this.id,
@@ -17,6 +18,7 @@ class Product {
     required this.emoji,
     this.supplier,
     this.avgDaily,
+    this.barcode,
   });
 
   Product copyWith({int? stock}) => Product(
@@ -28,6 +30,7 @@ class Product {
         emoji: emoji,
         supplier: supplier,
         avgDaily: avgDaily,
+        barcode: barcode,
       );
 }
 
@@ -91,14 +94,14 @@ String mxn(int n) {
 }
 
 const initialProducts = <Product>[
-  Product(id: 'tomate', name: 'Tomate saladet', unit: 'kg', price: 30, stock: 42, emoji: '🍅', supplier: 'Huerto Norte', avgDaily: 12),
-  Product(id: 'lechuga', name: 'Lechuga italiana', unit: 'pieza', price: 28, stock: 4, emoji: '🥬', supplier: 'Huerto Norte', avgDaily: 6),
-  Product(id: 'zanahoria', name: 'Zanahoria', unit: 'kg', price: 20, stock: 18, emoji: '🥕', supplier: 'Milpa Verde', avgDaily: 5),
-  Product(id: 'cilantro', name: 'Cilantro', unit: 'manojo', price: 12, stock: 3, emoji: '🌿', supplier: 'Milpa Verde', avgDaily: 8),
-  Product(id: 'espinaca', name: 'Espinaca', unit: 'bolsa', price: 28, stock: 14, emoji: '🥗', supplier: 'Huerto Norte', avgDaily: 6),
-  Product(id: 'aguacate', name: 'Aguacate', unit: 'kg', price: 55, stock: 22, emoji: '🥑', supplier: 'Milpa Verde', avgDaily: 4),
-  Product(id: 'limon', name: 'Limón', unit: 'kg', price: 32, stock: 30, emoji: '🍋', supplier: 'Cítricos del Bajío', avgDaily: 7),
-  Product(id: 'mermelada', name: 'Mermelada artesanal', unit: 'frasco', price: 95, stock: 12, emoji: '🍯', supplier: 'Taller La Abeja', avgDaily: 2),
+  Product(id: 'tomate', name: 'Tomate saladet', unit: 'kg', price: 30, stock: 42, emoji: '🍅', supplier: 'Huerto Norte', avgDaily: 12, barcode: '7501055300017'),
+  Product(id: 'lechuga', name: 'Lechuga italiana', unit: 'pieza', price: 28, stock: 4, emoji: '🥬', supplier: 'Huerto Norte', avgDaily: 6, barcode: '7501055300024'),
+  Product(id: 'zanahoria', name: 'Zanahoria', unit: 'kg', price: 20, stock: 18, emoji: '🥕', supplier: 'Milpa Verde', avgDaily: 5, barcode: '7501055300031'),
+  Product(id: 'cilantro', name: 'Cilantro', unit: 'manojo', price: 12, stock: 3, emoji: '🌿', supplier: 'Milpa Verde', avgDaily: 8, barcode: '7501055300048'),
+  Product(id: 'espinaca', name: 'Espinaca', unit: 'bolsa', price: 28, stock: 14, emoji: '🥗', supplier: 'Huerto Norte', avgDaily: 6, barcode: '7501055300055'),
+  Product(id: 'aguacate', name: 'Aguacate', unit: 'kg', price: 55, stock: 22, emoji: '🥑', supplier: 'Milpa Verde', avgDaily: 4, barcode: '7501055300062'),
+  Product(id: 'limon', name: 'Limón', unit: 'kg', price: 32, stock: 30, emoji: '🍋', supplier: 'Cítricos del Bajío', avgDaily: 7, barcode: '7501055300079'),
+  Product(id: 'mermelada', name: 'Mermelada artesanal', unit: 'frasco', price: 95, stock: 12, emoji: '🍯', supplier: 'Taller La Abeja', avgDaily: 2, barcode: '7501055300086'),
 ];
 
 const seedMemories = <MemoryEvent>[
