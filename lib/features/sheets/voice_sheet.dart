@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../app/theme.dart';
 import '../../app/widgets/brand.dart';
 import '../../core/data.dart';
+import '../../core/mock_ai.dart';
+import '../../core/store.dart';
 import '../home/message.dart';
 
 class VoiceSheet extends StatefulWidget {
@@ -18,37 +21,114 @@ class VoiceSheet extends StatefulWidget {
 }
 
 class _VoiceSheetState extends State<VoiceSheet> {
-  static const _target =
+  /// Fallback cuando speech_to_text no está disponible (web / sin permisos).
+  static const _fallback =
       'Vendí tres bolsas de espinaca, dos lechugas y una mermelada. Pagaron en efectivo.';
 
-  bool _understood = false;
+  final _speech = SpeechToText();
+  bool _ready = false;
+  bool _listening = false;
+  bool _simulating = false;
+  bool _done = false;
   String _t = '';
   Timer? _typer;
 
   @override
   void initState() {
     super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      _ready = await _speech.initialize(
+        onStatus: (status) {
+          if (!mounted) return;
+          if (status == 'done' || status == 'notListening') {
+            setState(() => _listening = false);
+          }
+        },
+        onError: (_) {},
+      );
+    } catch (_) {
+      _ready = false;
+    }
+    if (!mounted) return;
+    if (_ready) {
+      _listen();
+    } else {
+      _simulate();
+    }
+  }
+
+  void _listen() {
+    if (!_ready) return;
+    setState(() {
+      _listening = true;
+      _done = false;
+      _simulating = false;
+    });
+    _speech.listen(
+      listenOptions: SpeechListenOptions(
+        localeId: 'es-MX',
+        listenFor: const Duration(seconds: 10),
+        partialResults: true,
+      ),
+      onResult: (r) {
+        setState(() => _t = r.recognizedWords.trim());
+        if (r.finalResult) {
+          setState(() {
+            _listening = false;
+            _done = true;
+          });
+        }
+      },
+    );
+  }
+
+  void _simulate() {
+    _simulating = true;
     var i = 0;
-    _typer = Timer.periodic(const Duration(milliseconds: 35), (timer) {
+    _typer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       i++;
-      setState(() => _t = _target.substring(0, i.clamp(0, _target.length)));
-      if (i >= _target.length) {
+      setState(() => _t = _fallback.substring(0, i.clamp(0, _fallback.length)));
+      if (i >= _fallback.length) {
         timer.cancel();
         Timer(const Duration(milliseconds: 500), () {
-          if (mounted) setState(() => _understood = true);
+          if (mounted) setState(() => _done = true);
         });
       }
     });
   }
 
+  void _retry() {
+    if (_ready) {
+      _listen();
+    } else if (!_simulating) {
+      _simulate();
+    }
+  }
+
   @override
   void dispose() {
     _typer?.cancel();
+    _speech.stop();
     super.dispose();
+  }
+
+  void _confirm() {
+    widget.onConfirm(_t.isEmpty ? _fallback : _t);
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final store = LumoScope.of(context);
+    final lines = parseSale(_t.isEmpty ? _fallback : _t, store.products);
+    final total = totalOf(lines, store.products);
+    final showConfirm = lines.isNotEmpty &&
+        (_simulating ? _done : _ready && !_listening && _t.isNotEmpty);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Column(
@@ -67,32 +147,31 @@ class _VoiceSheetState extends State<VoiceSheet> {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: _t,
+                    text: _t.isEmpty ? 'Escuchando…' : _t,
                     style: const TextStyle(
                       fontSize: 15,
                       height: 1.5,
                       color: AppColors.foreground,
                     ),
                   ),
-                  if (!_understood)
-                    const WidgetSpan(
-                      child: _Cursor(),
-                    ),
+                  const WidgetSpan(
+                    child: _Cursor(),
+                  ),
                 ],
               ),
               textAlign: TextAlign.center,
             ),
           ),
-          if (_understood) ...[
+          if (showConfirm) ...[
             const SizedBox(height: 16),
             Row(
               children: [
                 const LumoMark(size: 22),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Entendí esta venta',
-                    style: TextStyle(
+                    lines.length == 1 ? 'Entendí este producto' : 'Entendí esta venta',
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppColors.foreground,
@@ -105,27 +184,24 @@ class _VoiceSheetState extends State<VoiceSheet> {
             const SizedBox(height: 12),
             Container(
               decoration: cardDeco(radius: 18),
-              child: const Column(
+              child: Column(
                 children: [
-                  _VoiceLine(emoji: '🥗', name: 'Espinaca', qty: '3 bolsas', total: 84),
-                  Divider(height: 1, color: AppColors.hairline),
-                  _VoiceLine(emoji: '🥬', name: 'Lechuga italiana', qty: '2 piezas', total: 56),
-                  Divider(height: 1, color: AppColors.hairline),
-                  _VoiceLine(emoji: '🍯', name: 'Mermelada artesanal', qty: '1 frasco', total: 95),
+                  for (var i = 0; i < lines.length; i++)
+                    _VoiceLine(line: lines[i], showDivider: i > 0),
                 ],
               ),
             ),
             const SizedBox(height: 12),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Total · Efectivo',
+                const Text(
+                  'Total',
                   style: TextStyle(fontSize: 14, color: AppColors.mutedForeground),
                 ),
                 Text(
-                  '\$235',
-                  style: TextStyle(
+                  mxn(total),
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: AppColors.foreground,
@@ -138,10 +214,7 @@ class _VoiceSheetState extends State<VoiceSheet> {
               children: [
                 Expanded(
                   child: FilledButton(
-                    onPressed: () {
-                      widget.onConfirm(_target);
-                      Navigator.of(context).pop();
-                    },
+                    onPressed: _confirm,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: AppColors.primaryForeground,
@@ -158,7 +231,7 @@ class _VoiceSheetState extends State<VoiceSheet> {
                 ),
                 const SizedBox(width: 8),
                 OutlinedButton(
-                  onPressed: () {},
+                  onPressed: _retry,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.foreground,
                     side: const BorderSide(color: AppColors.hairline),
@@ -167,7 +240,7 @@ class _VoiceSheetState extends State<VoiceSheet> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text('Corregir hablando', style: TextStyle(fontSize: 14)),
+                  child: const Text('Intentar de nuevo', style: TextStyle(fontSize: 14)),
                 ),
               ],
             ),
@@ -211,49 +284,26 @@ class _CursorState extends State<_Cursor> with SingleTickerProviderStateMixin {
   }
 }
 
-class _MicOrb extends StatefulWidget {
+class _MicOrb extends StatelessWidget {
   const _MicOrb();
 
   @override
-  State<_MicOrb> createState() => _MicOrbState();
-}
-
-class _MicOrbState extends State<_MicOrb> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 2600),
-  )..repeat();
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _c,
-      builder: (context, _) {
-        final t = _c.value;
-        final glow = 0.55 + 0.45 * math.sin(t * 2 * math.pi);
-        return Container(
-          width: 96,
-          height: 96,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: aiGradient,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.ai2.withValues(alpha: 0.6 * glow),
-                blurRadius: 40,
-                spreadRadius: 4,
-              ),
-            ],
+    return Container(
+      width: 96,
+      height: 96,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: aiGradient,
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x994EC983),
+            blurRadius: 40,
+            spreadRadius: 4,
           ),
-          child: const Icon(Icons.mic_rounded, size: 36, color: Colors.white),
-        );
-      },
+        ],
+      ),
+      child: const Icon(Icons.mic_rounded, size: 36, color: Colors.white),
     );
   }
 }
@@ -308,32 +358,29 @@ class _WaveState extends State<_Wave> with SingleTickerProviderStateMixin {
 }
 
 class _VoiceLine extends StatelessWidget {
-  final String emoji;
-  final String name;
-  final String qty;
-  final int total;
+  final SaleLine line;
+  final bool showDivider;
 
-  const _VoiceLine({
-    required this.emoji,
-    required this.name,
-    required this.qty,
-    required this.total,
-  });
+  const _VoiceLine({required this.line, this.showDivider = false});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    final p = LumoScope.of(context).productById(line.productId);
+    return Container(
       padding: const EdgeInsets.all(12),
+      decoration: showDivider
+          ? const BoxDecoration(border: Border(top: BorderSide(color: AppColors.hairline)))
+          : null,
       child: Row(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 20)),
+          Text(p?.emoji ?? '🛒', style: const TextStyle(fontSize: 20)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  p?.name ?? line.productId,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -341,14 +388,14 @@ class _VoiceLine extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  qty,
+                  '${line.qty} ${p?.unit ?? ''}',
                   style: const TextStyle(fontSize: 12, color: AppColors.mutedForeground),
                 ),
               ],
             ),
           ),
           Text(
-            mxn(total),
+            p == null ? '' : mxn(p.price * line.qty),
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,

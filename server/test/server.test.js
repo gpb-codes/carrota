@@ -256,6 +256,14 @@ test('compra sugerida se genera desde insights', async () => {
   }
 });
 
+test('lumo sin API key responde power:false (fallback a parser local)', async () => {
+  const res = await send('/api/lumo', { body: { text: '¿cómo va el negocio?' } });
+  assert.equal(res.status, 200);
+  const body = await j(res);
+  assert.equal(body.power, false);
+  assert.equal(body.reply, null);
+});
+
 test('cierre registra snapshot y eventos', async () => {
   const res = await send('/api/closing', { body: { note: 'Todo en orden' } });
   assert.equal(res.status, 200);

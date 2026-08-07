@@ -154,6 +154,86 @@ class Briefing {
   const Briefing({required this.greeting, required this.paragraphs});
 }
 
+/// Ventas del día reales, espejo de GET /api/summary.
+class ByPaymentTotals {
+  final int efectivo;
+  final int tarjeta;
+  final int transferencia;
+  final int combinado;
+
+  const ByPaymentTotals({
+    this.efectivo = 0,
+    this.tarjeta = 0,
+    this.transferencia = 0,
+    this.combinado = 0,
+  });
+
+  factory ByPaymentTotals.fromJson(Map<String, dynamic> json) => ByPaymentTotals(
+        efectivo: (json['efectivo'] as num?)?.toInt() ?? 0,
+        tarjeta: (json['tarjeta'] as num?)?.toInt() ?? 0,
+        transferencia: (json['transferencia'] as num?)?.toInt() ?? 0,
+        combinado: (json['combinado'] as num?)?.toInt() ?? 0,
+      );
+}
+
+class TopProduct {
+  final String productId;
+  final String name;
+  final String emoji;
+  final int qty;
+
+  const TopProduct({
+    required this.productId,
+    required this.name,
+    required this.emoji,
+    required this.qty,
+  });
+}
+
+class BizSummary {
+  final String date;
+  final int salesTotal;
+  final int salesCount;
+  final ByPaymentTotals byPayment;
+  final List<TopProduct> topProducts;
+  final int openAuth;
+  final int inventoryValue;
+  final int lowStockCount;
+
+  const BizSummary({
+    required this.date,
+    required this.salesTotal,
+    required this.salesCount,
+    required this.byPayment,
+    required this.topProducts,
+    required this.openAuth,
+    required this.inventoryValue,
+    required this.lowStockCount,
+  });
+
+  factory BizSummary.fromJson(Map<String, dynamic> json) => BizSummary(
+        date: json['date'] as String? ?? '',
+        salesTotal: (json['salesTotal'] as num?)?.toInt() ?? 0,
+        salesCount: (json['salesCount'] as num?)?.toInt() ?? 0,
+        byPayment: ByPaymentTotals.fromJson(
+          (json['byPayment'] as Map<String, dynamic>?) ?? const {},
+        ),
+        topProducts: [
+          for (final t in (json['topProducts'] as List?) ?? const [])
+            if (t is Map<String, dynamic>)
+              TopProduct(
+                productId: t['productId'] as String? ?? '',
+                name: t['name'] as String? ?? '',
+                emoji: t['emoji'] as String? ?? '🛒',
+                qty: (t['qty'] as num?)?.toInt() ?? 0,
+              ),
+        ],
+        openAuth: (json['openAuth'] as num?)?.toInt() ?? 0,
+        inventoryValue: (json['inventoryValue'] as num?)?.toInt() ?? 0,
+        lowStockCount: (json['lowStockCount'] as num?)?.toInt() ?? 0,
+      );
+}
+
 const briefing = Briefing(
   greeting: 'Buenos días, Jorge.',
   paragraphs: [

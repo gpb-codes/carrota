@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../app/widgets/brand.dart';
 import '../../core/data.dart';
+import '../../core/store.dart';
 
 class ClosingSheet extends StatefulWidget {
   const ClosingSheet({super.key});
@@ -12,10 +13,9 @@ class ClosingSheet extends StatefulWidget {
 }
 
 class _ClosingSheetState extends State<ClosingSheet> {
-  static const _expected = 3150;
-
   final _controller = TextEditingController();
   bool _done = false;
+  bool _saving = false;
 
   @override
   void dispose() {
@@ -23,11 +23,29 @@ class _ClosingSheetState extends State<ClosingSheet> {
     super.dispose();
   }
 
+  Future<void> _close() async {
+    final store = LumoScope.of(context);
+    setState(() => _saving = true);
+    await store.closeDay(note: _controller.text.trim().isEmpty ? null : _controller.text.trim());
+    if (!mounted) return;
+    setState(() {
+      _saving = false;
+      _done = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final store = LumoScope.of(context);
+    final s = store.summary;
+    final expected = s?.byPayment.efectivo ?? 3150;
+    final salesTotal = s?.salesTotal ?? 8250;
+    final ops = s?.salesCount ?? 47;
+    final card = s?.byPayment.tarjeta ?? 4400;
+
     final counted = int.tryParse(_controller.text) ?? 0;
     final hasCount = _controller.text.isNotEmpty;
-    final diff = hasCount ? counted - _expected : null;
+    final diff = hasCount ? counted - expected : null;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -42,7 +60,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                     LumoMark(size: 24),
                     SizedBox(width: 10),
                     Text(
-                      'Preparé el cierre del martes.',
+                      'Preparé el cierre del día.',
                       style: TextStyle(fontSize: 15, color: AppColors.foreground),
                     ),
                   ],
@@ -53,13 +71,13 @@ class _ClosingSheetState extends State<ClosingSheet> {
                     Expanded(
                       child: _ClosingMetric(
                         label: 'Ventas totales',
-                        value: mxn(8250),
+                        value: mxn(salesTotal),
                         tone: _MetricTone.ok,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _ClosingMetric(label: 'Operaciones', value: '47'),
+                      child: _ClosingMetric(label: 'Operaciones', value: '$ops'),
                     ),
                   ],
                 ),
@@ -69,39 +87,40 @@ class _ClosingSheetState extends State<ClosingSheet> {
                     Expanded(
                       child: _ClosingMetric(
                         label: 'Efectivo esperado',
-                        value: mxn(3150),
+                        value: mxn(expected),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _ClosingMetric(label: 'Tarjeta', value: mxn(4400)),
+                      child: _ClosingMetric(label: 'Tarjeta', value: mxn(card)),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: cardDeco(radius: 18),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ATENCIÓN',
-                        style: TextStyle(
-                          fontSize: 11,
-                          letterSpacing: 1,
-                          color: AppColors.mutedForeground.withValues(alpha: 0.9),
+                if (s != null && s.openAuth > 0)
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: cardDeco(radius: 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'ATENCIÓN',
+                          style: TextStyle(
+                            fontSize: 11,
+                            letterSpacing: 1,
+                            color: AppColors.mutedForeground.withValues(alpha: 0.9),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Una venta con tarjeta no tiene código de autorización.',
-                        style: TextStyle(fontSize: 14, color: AppColors.foreground),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        Text(
+                          '${s.openAuth} venta(s) con tarjeta no tienen código de autorización.',
+                          style: const TextStyle(fontSize: 14, color: AppColors.foreground),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
+                if (s != null && s.openAuth > 0) const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: cardDeco(radius: 18),
@@ -109,21 +128,21 @@ class _ClosingSheetState extends State<ClosingSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text.rich(
-                        const TextSpan(
+                        TextSpan(
                           children: [
-                            TextSpan(
+                            const TextSpan(
                               text: 'Según las ventas, deberías tener ',
                               style: TextStyle(fontSize: 14, color: AppColors.foreground),
                             ),
                             TextSpan(
-                              text: '\$3,150',
-                              style: TextStyle(
+                              text: mxn(expected),
+                              style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.foreground,
                               ),
                             ),
-                            TextSpan(
+                            const TextSpan(
                               text: ' en efectivo. ¿Cuánto contaste?',
                               style: TextStyle(fontSize: 14, color: AppColors.foreground),
                             ),
@@ -196,9 +215,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: hasCount
-                            ? () => setState(() => _done = true)
-                            : null,
+                        onPressed: hasCount && !_saving ? _close : null,
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: AppColors.primaryForeground,
@@ -210,9 +227,9 @@ class _ClosingSheetState extends State<ClosingSheet> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: const Text(
-                          'Cerrar el día',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                        child: Text(
+                          _saving ? 'Cerrando…' : 'Cerrar el día',
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ),
@@ -242,7 +259,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Hoy vendiste 18 % más que el martes pasado. El tomate fue el producto más vendido y será necesario reponer lechuga mañana.',
+                  'Cierre guardado. El resumen del día y la memoria se actualizaron.',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
                 ),

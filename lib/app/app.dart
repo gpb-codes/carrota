@@ -99,26 +99,7 @@ class _ShellState extends State<_Shell> {
       case AppIntent.close:
         _openClosing();
       case AppIntent.question:
-        store.pushChat(
-          ChatMsg.lumoText(
-            uid(),
-            'Hasta ahora llevas \$2,430 en ventas hoy. El tomate es lo más vendido y la lechuga podría agotarse mañana.',
-          ),
-        );
-        Timer(const Duration(milliseconds: 500), () {
-          if (!mounted) return;
-          LumoScope.of(context).pushChat(
-            ChatMsg(
-              id: uid(),
-              role: Role.lumo,
-              kind: MsgKind.insight,
-              productId: 'lechuga',
-              reason:
-                  'Quedan 4 lechugas y normalmente vendes 6 por día. Basado en ventas de los últimos 14 días.',
-              recommendation: 'Agregar 12 lechugas a la lista de compra de mañana.',
-            ),
-          );
-        });
+        _llmReply(text);
       case AppIntent.unknown:
         store.pushChat(
           ChatMsg.lumoText(
@@ -127,6 +108,47 @@ class _ShellState extends State<_Shell> {
           ),
         );
     }
+  }
+
+  Future<void> _llmReply(String text) async {
+    final store = LumoScope.of(context);
+    List<Map<String, dynamic>> history() => [
+          for (final m in store.chat.length > 8
+              ? store.chat.sublist(store.chat.length - 8)
+              : store.chat)
+            if (m.role == Role.user && m.text != null)
+              {'role': 'user', 'content': m.text!}
+            else if (m.role == Role.lumo && m.text != null)
+              {'role': 'assistant', 'content': m.text!},
+        ];
+    final res = await store.api.lumo(text, history: history());
+    if (!mounted) return;
+    if (res.power && res.reply != null) {
+      store.pushChat(ChatMsg.lumoText(uid(), res.reply!));
+      store.refreshSummary();
+      return;
+    }
+    store.pushChat(
+      ChatMsg.lumoText(
+        uid(),
+        'Hasta ahora llevas \$2,430 en ventas hoy. El tomate es lo más vendido y la lechuga podría agotarse mañana.',
+      ),
+    );
+    Timer(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      store.pushChat(
+        ChatMsg(
+          id: uid(),
+          role: Role.lumo,
+          kind: MsgKind.insight,
+          productId: 'lechuga',
+          reason:
+              'Quedan 4 lechugas y normalmente vendes 6 por día. Basado en ventas de los últimos 14 días.',
+          recommendation: 'Agregar 12 lechugas a la lista de compra de mañana.',
+        ),
+      );
+      store.refreshSummary();
+    });
   }
 
   void _onPickPayment(String id, PaymentMethod method) {
@@ -212,12 +234,15 @@ class _ShellState extends State<_Shell> {
   }
 
   void _onUndo(String id) {
-    LumoScope.of(context).pushChat(
+    final store = LumoScope.of(context);
+    store.undoSale(id);
+    store.pushChat(
       ChatMsg.lumoText(
         uid(),
         'Listo, deshice esa operación. El inventario y la caja volvieron al estado anterior.',
       ),
     );
+    store.refreshSummary();
   }
 
   void _onStarter(String text) {
@@ -262,22 +287,21 @@ class _ShellState extends State<_Shell> {
 
   void _onVoiceConfirm(String text) {
     final store = LumoScope.of(context);
+    final normalized = text.trim();
+    if (normalized.isEmpty) return;
+    store.pushChat(ChatMsg.userText(uid(), normalized));
+    final lines = parseSale(normalized, store.products);
+    if (lines.isEmpty) {
+      _handleSend(normalized);
+      return;
+    }
     final sale = Sale(
       id: uid(),
-      lines: const [
-        SaleLine(productId: 'espinaca', qty: 3),
-        SaleLine(productId: 'lechuga', qty: 2),
-        SaleLine(productId: 'mermelada', qty: 1),
-      ],
-      total: 3 * 28 + 2 * 28 + 95,
+      lines: lines,
+      total: totalOf(lines, store.products),
       payment: PaymentMethod.efectivo,
       at: _now(),
-    );
-    store.pushChat(
-      ChatMsg.userText(
-        uid(),
-        'Vendí tres espinacas, dos lechugas y una mermelada. Efectivo.',
-      ),
+      serverId: null,
     );
     store.pushChat(
       ChatMsg(
@@ -302,6 +326,7 @@ class _ShellState extends State<_Shell> {
         ],
       ),
     );
+    store.refreshSummary();
   }
 
   void _openVoice() {
@@ -390,7 +415,15 @@ class _ShellState extends State<_Shell> {
                   onScan: _openScanner,
                 ),
               ),
-              BottomNav(tab: _tab, onChange: (t) => setState(() => _tab = t)),
+              BottomNav(
+                tab: _tab,
+                onChange: (t) {
+                  setState(() => _tab = t);
+                  if (t == AppTab.hoy) {
+                    LumoScope.of(context).refreshSummary();
+                  }
+                },
+              ),
             ],
           ),
           if (!store.onboarded)
