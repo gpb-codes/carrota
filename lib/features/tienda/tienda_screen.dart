@@ -31,7 +31,7 @@ class _VideoPage extends StatefulWidget {
 }
 
 class _VideoPageState extends State<_VideoPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _pulse = AnimationController(
     vsync: this,
     duration: const Duration(seconds: 6),
