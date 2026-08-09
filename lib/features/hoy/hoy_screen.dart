@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../core/data.dart';
+import '../../core/store.dart';
 import '../home/message.dart';
 
 class HoyScreen extends StatelessWidget {
@@ -12,6 +14,20 @@ class HoyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final store = LumoScope.of(context);
+    final s = store.summary;
+    final total = s?.salesTotal ?? 4850;
+    final ops = s?.salesCount ?? 28;
+    final payEf = s?.byPayment.efectivo ?? 1950;
+    final payTarj = s?.byPayment.tarjeta ?? 2400;
+    final payTransf = s?.byPayment.transferencia ?? 500;
+    final top = s?.topProducts.firstOrNull;
+    final topName = top?.name ?? 'Tomate saladet';
+    final topEmoji = top?.emoji ?? '🍅';
+    final topQty = (top?.qty ?? 32);
+    final oficina = s != null && s.openAuth > 0
+        ? '${s.openAuth} venta(s) con tarjeta sin código de autorización.'
+        : null;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       child: Column(
@@ -36,7 +52,7 @@ class HoyScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text.rich(
+          Text.rich(
             TextSpan(
               children: [
                 TextSpan(
@@ -44,7 +60,7 @@ class HoyScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 15, color: Color(0xCC151B24)),
                 ),
                 TextSpan(
-                  text: '\$4,850',
+                  text: mxn(total),
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -52,7 +68,7 @@ class HoyScreen extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  text: ' en 28 operaciones.',
+                  text: ' en $ops ${ops == 1 ? 'operación' : 'operaciones'}.',
                   style: TextStyle(fontSize: 15, color: Color(0xCC151B24)),
                 ),
               ],
@@ -74,11 +90,11 @@ class HoyScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Row(
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      '\$4,850',
+                      mxn(total),
                       style: TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.w600,
@@ -86,7 +102,7 @@ class HoyScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 10),
-                    TagChip('+18 % vs martes pasado', tone: TagTone.ok),
+                    TagChip('$ops operaciones', tone: TagTone.ok),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -107,9 +123,9 @@ class HoyScreen extends StatelessWidget {
                     children: [
                       _MiniLabel('Pagos'),
                       const SizedBox(height: 6),
-                      const _PayRow('Efectivo', '\$1,950'),
-                      const _PayRow('Tarjeta', '\$2,400'),
-                      const _PayRow('Transferencias', '\$500'),
+                      _PayRow('Efectivo', mxn(payEf)),
+                      _PayRow('Tarjeta', mxn(payTarj)),
+                      _PayRow('Transferencias', mxn(payTransf)),
                     ],
                   ),
                 ),
@@ -124,26 +140,27 @@ class HoyScreen extends StatelessWidget {
                     children: [
                       _MiniLabel('Más vendido'),
                       const SizedBox(height: 8),
-                      const Row(
+                      Row(
                         children: [
-                          Text('🍅', style: TextStyle(fontSize: 24)),
-                          SizedBox(width: 8),
+                          Text(topEmoji, style: const TextStyle(fontSize: 24)),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Tomate saladet',
-                                  style: TextStyle(
+                                  topName,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     color: AppColors.foreground,
                                   ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                SizedBox(height: 2),
+                                const SizedBox(height: 2),
                                 Text(
-                                  '32 kg vendidos',
-                                  style: TextStyle(
+                                  '$topQty unidades vendidas',
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: AppColors.mutedForeground,
                                   ),
@@ -181,15 +198,15 @@ class HoyScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text.rich(
+                Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(
-                        text: 'Las ventas fueron más fuertes entre las ',
+                      const TextSpan(
+                        text: 'Llevas ',
                         style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
                       ),
                       TextSpan(
-                        text: '12:00',
+                        text: mxn(total),
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -197,31 +214,26 @@ class HoyScreen extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                        text: ' y las ',
+                        text: ' en $ops operaciones. ',
                         style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
                       ),
                       TextSpan(
-                        text: '14:00',
+                        text: s != null && s.topProducts.isNotEmpty
+                            ? '${s.topProducts.first.emoji} ${s.topProducts.first.name} es lo más vendido hoy'
+                            : 'Aún no hay ventas registradas hoy',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: AppColors.foreground,
                         ),
                       ),
-                      TextSpan(
-                        text: '. El tomate representó el ',
-                        style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
-                      ),
-                      TextSpan(
-                        text: '28 %',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.foreground,
+                      if (oficina != null)
+                        TextSpan(
+                          text: '. $oficina',
+                          style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
                         ),
-                      ),
                       TextSpan(
-                        text: ' de los ingresos del día.',
+                        text: '.',
                         style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
                       ),
                     ],

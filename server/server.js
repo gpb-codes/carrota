@@ -4,6 +4,12 @@
 // Env:
 //   PORT     puerto (por defecto 4000; usa 0 para un puerto aleatorio)
 //   DB_PATH  ruta de la base (por defecto ./data.db)
+//   LUMO_API_KEY   API key para POST /api/lumo (LLM real). Sin key, el
+//                  endpoint responde { power: false } y la app cae al
+//                  parser local (mock_ai).
+//   LUMO_BASE_URL  base url OpenAI-compatible (por defecto
+//                  https://api.openai.com/v1). Puede apuntar a Ollama, etc.
+//   LUMO_MODEL     modelo (por defecto gpt-4o-mini)
 //
 // Cobertura:
 //   - Tienda (feed estilo TikTok Shop, likes, comentarios, carrito)
@@ -19,6 +25,9 @@ const { DatabaseSync } = require('node:sqlite');
 
 const PORT = Number(process.env.PORT) || 4000;
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data.db');
+const LUMO_API_KEY = process.env.LUMO_API_KEY || '';
+const LUMO_BASE_URL = process.env.LUMO_BASE_URL || 'https://api.openai.com/v1';
+const LUMO_MODEL = process.env.LUMO_MODEL || 'gpt-4o-mini';
 const db = new DatabaseSync(DB_PATH);
 
 db.exec(`
@@ -767,8 +776,47 @@ const routes = [
   }],
 
   ['GET', /^\/api\/business$/, async () => ({ business: business() })],
-];
 
+  ['POST', /^\/api\/lumo$/, async (body) => {
+    if (!LUMO_API_KEY) {
+      return { power: false, reply: null };
+    }
+    const text = body.text ? String(body.text) : '';
+    if (!text.trim()) return { power: false, reply: null };
+    const history = Array.isArray(body.history) ? body.history.slice(-10) : [];
+    const s = summary();
+    const low = insights().slice(0, 5);
+    const system = [
+      'Eres Lumo, la asistente de Carrota, una frutería/tienda local mexicana.',
+      'Respondes en español, breve y con consejos prácticos sobre su negocio.',
+      `Hoy: ventas ${mxn(s.salesTotal)} en ${s.salesCount} operaciones; efectivo ${mxn(s.byPayment.efectivo)}.`,
+      low.length
+        ? `Inventario urgente: ${low.map((i) => `${i.name} (${i.stock} ${i.unit} / vende ${i.avgDaily}/día) → ${i.recommendation}`).join('; ')}`
+        : 'Inventario en orden.',
+      'Si la pregunta es una venta ("vendí X"), NO la registres: responde que confirme la venta con el menú de voz y ayuda solo con lo que pida.',
+    ].join('\n');
+    const messages = [
+      { role: 'system', content: system },
+      ...history,
+      { role: 'user', content: text },
+    ];
+    const res = await fetch(`${LUMO_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${LUMO_API_KEY}`,
+      },
+      body: JSON.stringify({ model: LUMO_MODEL, messages, temperature: 0.6, max_tokens: 300 }),
+    });
+    if (!res.ok) {
+      console.error(`lumo upstream ${res.status}: ${await res.text()}`);
+      return { power: false, reply: null, error: `upstream ${res.status}` };
+    }
+    const data = await res.json();
+    const reply = data?.choices?.[0]?.message?.content || null;
+    return reply ? { power: true, reply: reply.trim() } : { power: false, reply: null };
+  }],
+];
 const server = http.createServer(async (req, res) => {
   console.log(`${new Date().toISOString()} ${req.method} ${req.url} <- ${req.socket.remoteAddress}`);
   const url = req.url.split('?')[0];

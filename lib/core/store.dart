@@ -27,6 +27,7 @@ class Sale {
   final PaymentMethod? payment;
   final String? authCode;
   final String at;
+  final String? serverId;
 
   const Sale({
     required this.id,
@@ -35,15 +36,18 @@ class Sale {
     this.payment,
     this.authCode,
     required this.at,
+    this.serverId,
   });
 
-  Sale copyWith({PaymentMethod? payment, String? authCode}) => Sale(
+  Sale copyWith({PaymentMethod? payment, String? authCode, String? serverId}) =>
+      Sale(
         id: id,
         lines: lines,
         total: total,
         payment: payment ?? this.payment,
         authCode: authCode ?? this.authCode,
         at: at,
+        serverId: serverId ?? this.serverId,
       );
 }
 
@@ -149,6 +153,8 @@ class LumoStore extends ChangeNotifier {
   bool serverOnline = false;
   bool _apiLoaded = false;
   final Set<String> _commentsLoaded = {};
+  BizSummary? summary;
+  final List<Sale> _confirmedSales = [];
 
   int get cartCount => cart.fold(0, (sum, l) => sum + l.qty);
 
@@ -210,9 +216,75 @@ class LumoStore extends ChangeNotifier {
       await _hydrateCatalog();
       await _hydrateEvents();
       await _hydrateShopping();
+      await refreshSummary();
     }
     _apiLoaded = true;
     notifyListeners();
+  }
+
+  /// Trae (o recalcula offline) el resumen del día.
+  Future<void> refreshSummary() async {
+    if (serverOnline) {
+      try {
+        final s = await api.fetchSummary();
+        if (s != null) {
+          summary = BizSummary.fromJson(s);
+          notifyListeners();
+        }
+      } catch (_) {
+        summary = _localSummary();
+        notifyListeners();
+      }
+    } else {
+      summary = _localSummary();
+      notifyListeners();
+    }
+  }
+
+  BizSummary _localSummary() {
+    var total = 0;
+    var count = 0;
+    final byProd = <String, int>{};
+    final byPayment = <String, int>{};
+    for (final sale in _confirmedSales) {
+      total += sale.total;
+      count++;
+      final pay = _payName(sale.payment);
+      byPayment[pay] = (byPayment[pay] ?? 0) + sale.total;
+      for (final l in sale.lines) {
+        byProd[l.productId] = (byProd[l.productId] ?? 0) + l.qty;
+      }
+    }
+    final top = byProd.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final topProducts = [
+      for (final e in top.take(5))
+        TopProduct(
+          productId: e.key,
+          name: productById(e.key)?.name ?? e.key,
+          emoji: productById(e.key)?.emoji ?? '🛒',
+          qty: e.value,
+        ),
+    ];
+    return BizSummary(
+      date: DateTime.now().toIso8601String().split('T').first,
+      salesTotal: total,
+      salesCount: count,
+      byPayment: ByPaymentTotals(
+        efectivo: byPayment['efectivo'] ?? 0,
+        tarjeta: byPayment['tarjeta'] ?? 0,
+        transferencia: byPayment['transferencia'] ?? 0,
+        combinado: byPayment['combinado'] ?? 0,
+      ),
+      topProducts: topProducts,
+      openAuth: 0,
+      inventoryValue:
+          products.fold(0, (acc, p) => acc + p.stock * p.price),
+      lowStockCount: products.where((p) {
+        final avg = p.avgDaily ?? 0;
+        return avg > 0 && p.stock < avg;
+      }).length,
+    );
   }
 
   Future<void> _hydrateCatalog() async {
@@ -331,6 +403,7 @@ class LumoStore extends ChangeNotifier {
   }
 
   void applySale(Sale sale) {
+    _confirmedSales.add(sale);
     products = [
       for (final p in products)
         if (sale.lines.any((l) => l.productId == p.id))
@@ -364,16 +437,87 @@ class LumoStore extends ChangeNotifier {
       ...memory,
     ];
     if (serverOnline) {
-      unawaited(api.registerSale({
-        'lines': [
-          for (final l in sale.lines) {'product_id': l.productId, 'qty': l.qty},
-        ],
-        'payment': _payName(sale.payment),
-        'total': sale.total,
-        'authCode': sale.authCode,
-      }));
+      unawaited(() async {
+        final serverId = await api.registerSale({
+          'lines': [
+            for (final l in sale.lines) {'product_id': l.productId, 'qty': l.qty},
+          ],
+          'payment': _payName(sale.payment),
+          'total': sale.total,
+          'authCode': sale.authCode,
+        });
+        if (serverId != null) {
+          chat = [
+            for (final m in chat)
+              if (m.role == Role.lumo && m.sale?.id == sale.id)
+                m.copyWith(sale: sale.copyWith(serverId: serverId))
+              else
+                m,
+          ];
+          notifyListeners();
+        }
+      }());
     }
     notifyListeners();
+  }
+
+  Future<bool> deleteSale(String id) async {
+    try {
+      return await api.deleteSale(id);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Deshace una venta ya confirmada: devuelve el stock, quita los eventos
+  /// y llama a DELETE /api/sales/{id} si hay servidor.
+  Future<void> undoSale(String id) async {
+    final msg = chat.where((m) => m.id == id).firstOrNull;
+    final sale = msg?.sale;
+    if (msg == null || sale == null || msg.kind != MsgKind.saleProposal) return;
+
+    // Revierte el stock local.
+    products = [
+      for (final p in products)
+        if (sale.lines.any((l) => l.productId == p.id))
+          p.copyWith(stock: p.stock + _qtyOf(sale.lines, p.id))
+        else
+          p,
+    ];
+    timeline = [
+      for (final t in timeline)
+        if (t.id != 'tl-${sale.id}') t,
+    ];
+    memory = [
+      for (final m in memory)
+        if (m.id != 'mem-${sale.id}') m,
+    ];
+    _confirmedSales.removeWhere((s) => s.id == sale.id);
+
+    if (serverOnline && sale.serverId != null) {
+      unawaited(api.deleteSale(sale.serverId!));
+    }
+    notifyListeners();
+  }
+
+  /// Cierra el día: registra en el server (si puede) y refresca resumen/eventos.
+  Future<bool> closeDay({String? note}) async {
+    final ok = serverOnline
+        ? await api.registerClosing(note: note)
+        : false;
+    await refreshSummary();
+    await _hydrateEvents();
+    timeline.insert(
+      0,
+      TimelineEvent(
+        id: 'tl-close-${uid()}',
+        time: _now(),
+        title: 'Cierre del día registrado.',
+        tag: 'Cierre',
+      ),
+    );
+    notifyListeners();
+    return ok;
   }
 
   void receiveDelivery(List<SaleLine> lines, {String? supplier}) {
@@ -510,6 +654,8 @@ class LumoStore extends ChangeNotifier {
     timeline = seedTimeline;
     shopping = [];
     cart = [];
+    _confirmedSales.clear();
+    summary = null;
     likedVideos.clear();
     savedVideos.clear();
     videoLikes

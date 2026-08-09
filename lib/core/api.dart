@@ -139,11 +139,21 @@ class ApiClient {
     }
   }
 
-  Future<bool> registerSale(Map<String, dynamic> sale) async {
+  Future<String?> registerSale(Map<String, dynamic> sale) async {
     try {
-      return await _post('/api/sales', sale);
+      final res = await http
+          .post(
+            Uri.parse('$baseUrl/api/sales'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(sale),
+          )
+          .timeout(_timeout);
+      if (res.statusCode < 200 || res.statusCode >= 300) return null;
+      final body = jsonDecode(res.body) as Map<String, dynamic>;
+      final s = body['sale'] as Map<String, dynamic>?;
+      return s?['id'] as String?;
     } catch (_) {
-      return false;
+      return null;
     }
   }
 
@@ -236,6 +246,33 @@ class ApiClient {
   Future<Map<String, dynamic>?> fetchBusiness() async {
     final data = await _get('/api/business');
     return data?['business'] as Map<String, dynamic>?;
+  }
+
+  /// Pregunta al LLM real (POST /api/lumo). Devuelve null si no está
+  /// disponible (sin key en el server, error, o red caída) y la app debe
+  /// usar el parser local.
+  Future<({bool power, String? reply})> lumo(
+    String text, {
+    List<Map<String, dynamic>> history = const [],
+  }) async {
+    try {
+      final res = await http
+          .post(
+            Uri.parse('$baseUrl/api/lumo'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'text': text, 'history': history}),
+          )
+          .timeout(_timeout);
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        return (power: false, reply: null);
+      }
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      final power = data['power'] as bool? ?? false;
+      final reply = data['reply'] as String?;
+      return (power: power, reply: power && reply != null ? reply : null);
+    } catch (_) {
+      return (power: false, reply: null);
+    }
   }
 
   static bool isNetworkError(Object error) =>
