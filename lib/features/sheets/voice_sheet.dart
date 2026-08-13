@@ -126,7 +126,8 @@ class _VoiceSheetState extends State<VoiceSheet> {
     final store = LumoScope.of(context);
     final lines = parseSale(_t.isEmpty ? _fallback : _t, store.products);
     final total = totalOf(lines, store.products);
-    final showConfirm = lines.isNotEmpty &&
+    final showConfirm =
+        lines.isNotEmpty &&
         (_simulating ? _done : _ready && !_listening && _t.isNotEmpty);
 
     return Padding(
@@ -154,9 +155,7 @@ class _VoiceSheetState extends State<VoiceSheet> {
                       color: AppColors.foreground,
                     ),
                   ),
-                  const WidgetSpan(
-                    child: _Cursor(),
-                  ),
+                  const WidgetSpan(child: _Cursor()),
                 ],
               ),
               textAlign: TextAlign.center,
@@ -170,7 +169,9 @@ class _VoiceSheetState extends State<VoiceSheet> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    lines.length == 1 ? 'Entendí este producto' : 'Entendí esta venta',
+                    lines.length == 1
+                        ? 'Entendí este producto'
+                        : 'Entendí esta venta',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -197,7 +198,10 @@ class _VoiceSheetState extends State<VoiceSheet> {
               children: [
                 const Text(
                   'Total',
-                  style: TextStyle(fontSize: 14, color: AppColors.mutedForeground),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.mutedForeground,
+                  ),
                 ),
                 Text(
                   mxn(total),
@@ -225,7 +229,10 @@ class _VoiceSheetState extends State<VoiceSheet> {
                     ),
                     child: const Text(
                       'Confirmar',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
@@ -235,12 +242,18 @@ class _VoiceSheetState extends State<VoiceSheet> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.foreground,
                     side: const BorderSide(color: AppColors.hairline),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 13,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text('Intentar de nuevo', style: TextStyle(fontSize: 14)),
+                  child: const Text(
+                    'Intentar de nuevo',
+                    style: TextStyle(fontSize: 14),
+                  ),
                 ),
               ],
             ),
@@ -296,11 +309,7 @@ class _MicOrb extends StatelessWidget {
         shape: BoxShape.circle,
         gradient: aiGradient,
         boxShadow: const [
-          BoxShadow(
-            color: Color(0x994EC983),
-            blurRadius: 40,
-            spreadRadius: 4,
-          ),
+          BoxShadow(color: Color(0x994EC983), blurRadius: 40, spreadRadius: 4),
         ],
       ),
       child: const Icon(Icons.mic_rounded, size: 36, color: Colors.white),
@@ -347,7 +356,8 @@ class _WaveState extends State<_Wave> with SingleTickerProviderStateMixin {
                     gradient: aiGradient,
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  height: (20 + math.sin(i) * 12 + (i % 5) * 4) * (0.3 + 0.7 * t),
+                  height:
+                      (20 + math.sin(i) * 12 + (i % 5) * 4) * (0.3 + 0.7 * t),
                 ),
             ],
           ),
@@ -369,7 +379,9 @@ class _VoiceLine extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: showDivider
-          ? const BoxDecoration(border: Border(top: BorderSide(color: AppColors.hairline)))
+          ? const BoxDecoration(
+              border: Border(top: BorderSide(color: AppColors.hairline)),
+            )
           : null,
       child: Row(
         children: [
@@ -389,7 +401,10 @@ class _VoiceLine extends StatelessWidget {
                 ),
                 Text(
                   '${line.qty} ${p?.unit ?? ''}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.mutedForeground),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.mutedForeground,
+                  ),
                 ),
               ],
             ),

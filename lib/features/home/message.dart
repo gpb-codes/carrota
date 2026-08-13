@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 import '../../app/widgets/brand.dart';
@@ -31,11 +31,7 @@ class TagChip extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: fg,
-        ),
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: fg),
       ),
     );
   }
@@ -129,7 +125,9 @@ class Message extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = msg;
     if (m.role == Role.user) {
-      return _Rise(child: ChatBubble(role: Role.user, child: Text(m.text ?? '')));
+      return _Rise(
+        child: ChatBubble(role: Role.user, child: Text(m.text ?? '')),
+      );
     }
     switch (m.kind) {
       case MsgKind.text:
@@ -146,9 +144,13 @@ class Message extends StatelessWidget {
           ),
         );
       case MsgKind.receipt:
-        return _Rise(child: _ReceiptCard(m: m, onApproveReceipt: onApproveReceipt));
+        return _Rise(
+          child: _ReceiptCard(m: m, onApproveReceipt: onApproveReceipt),
+        );
       case MsgKind.insight:
-        return _Rise(child: _InsightCard(m: m, onOpenInsight: onOpenInsight));
+        return _Rise(
+          child: _InsightCard(m: m, onOpenInsight: onOpenInsight),
+        );
       case MsgKind.impact:
         return _Rise(child: _ImpactCard(m: m));
       case null:
@@ -181,29 +183,29 @@ class _Rise extends StatelessWidget {
 }
 
 Widget _card({required Widget child}) => Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: cardDeco(radius: 20),
-      child: child,
-    );
+  padding: const EdgeInsets.all(16),
+  margin: const EdgeInsets.only(bottom: 12),
+  decoration: cardDeco(radius: 20),
+  child: child,
+);
 
 Widget _headerRow({required TagChip chip, required String title}) => Row(
-      children: [
-        chip,
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: AppColors.foreground,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
+  children: [
+    chip,
+    const SizedBox(width: 8),
+    Expanded(
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: AppColors.foreground,
         ),
-      ],
-    );
+        overflow: TextOverflow.ellipsis,
+      ),
+    ),
+  ],
+);
 
 class _SaleProposalCard extends StatelessWidget {
   final ChatMsg m;
@@ -243,7 +245,10 @@ class _SaleProposalCard extends StatelessWidget {
                 const Expanded(
                   child: Text(
                     'Total',
-                    style: TextStyle(color: AppColors.mutedForeground, fontSize: 14),
+                    style: TextStyle(
+                      color: AppColors.mutedForeground,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
                 Text(
@@ -264,7 +269,10 @@ class _SaleProposalCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     _payLabel(sale.payment!),
-                    style: const TextStyle(fontSize: 14, color: AppColors.foreground),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.foreground,
+                    ),
                   ),
                   if (sale.authCode != null) ...[
                     const SizedBox(width: 8),
@@ -283,7 +291,10 @@ class _SaleProposalCard extends StatelessWidget {
               const SizedBox(height: 12),
               const Text(
                 '¿Cómo pagó?',
-                style: TextStyle(color: AppColors.mutedForeground, fontSize: 14),
+                style: TextStyle(
+                  color: AppColors.mutedForeground,
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -374,7 +385,10 @@ class _SaleLineRow extends StatelessWidget {
                 ),
                 Text(
                   '${line.qty} × ${p.unit} · ${mxn(p.price)} c/u',
-                  style: const TextStyle(fontSize: 12, color: AppColors.mutedForeground),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.mutedForeground,
+                  ),
                 ),
               ],
             ),
@@ -453,7 +467,10 @@ class _ReceiptCard extends StatelessWidget {
                 const Expanded(
                   child: Text(
                     'Total',
-                    style: TextStyle(color: AppColors.mutedForeground, fontSize: 14),
+                    style: TextStyle(
+                      color: AppColors.mutedForeground,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
                 Text(
@@ -484,7 +501,11 @@ class _ReceiptCard extends StatelessWidget {
               const SizedBox(height: 10),
               const Row(
                 children: [
-                  Icon(Icons.check_circle_rounded, size: 16, color: AppColors.primary),
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 16,
+                    color: AppColors.primary,
+                  ),
                   SizedBox(width: 6),
                   Expanded(
                     child: Text(
@@ -543,7 +564,10 @@ class _InsightCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               m.reason ?? '',
-              style: const TextStyle(fontSize: 14, color: AppColors.mutedForeground),
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.mutedForeground,
+              ),
             ),
             const SizedBox(height: 10),
             Container(
@@ -581,7 +605,10 @@ class _InsightCard extends StatelessWidget {
                     onTap: () => onOpenInsight(m.productId ?? ''),
                     borderRadius: BorderRadius.circular(999),
                     child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       child: Text(
                         'Ver por qué',
                         style: TextStyle(
@@ -623,7 +650,10 @@ class _InsightMetric extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: AppColors.mutedForeground),
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.mutedForeground,
+            ),
           ),
           const SizedBox(height: 2),
           Text(
@@ -738,7 +768,10 @@ class _AuthInputState extends State<_AuthInput> {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 hintText: 'Código de autorización',
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
               ),
             ),
           ),
@@ -776,7 +809,10 @@ Widget _primaryButton({required String label, required VoidCallback onTap}) {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
-    child: Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+    child: Text(
+      label,
+      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+    ),
   );
 }
 
@@ -794,8 +830,8 @@ Widget _pillButton({required String label, required VoidCallback onTap}) {
 }
 
 String _payLabel(PaymentMethod m) => switch (m) {
-      PaymentMethod.efectivo => 'Efectivo',
-      PaymentMethod.tarjeta => 'Tarjeta',
-      PaymentMethod.transferencia => 'Transferencia',
-      PaymentMethod.combinado => 'Pago combinado',
-    };
+  PaymentMethod.efectivo => 'Efectivo',
+  PaymentMethod.tarjeta => 'Tarjeta',
+  PaymentMethod.transferencia => 'Transferencia',
+  PaymentMethod.combinado => 'Pago combinado',
+};

@@ -17,7 +17,8 @@ class SaleLine {
 
   const SaleLine({required this.productId, required this.qty});
 
-  SaleLine copyWith({int? qty}) => SaleLine(productId: productId, qty: qty ?? this.qty);
+  SaleLine copyWith({int? qty}) =>
+      SaleLine(productId: productId, qty: qty ?? this.qty);
 }
 
 class Sale {
@@ -104,25 +105,24 @@ class ChatMsg {
     bool? awaitingAuth,
     bool? confirmed,
     bool? approved,
-  }) =>
-      ChatMsg(
-        id: id,
-        role: role,
-        kind: kind,
-        text: text,
-        sale: sale ?? this.sale,
-        awaitingPayment: awaitingPayment ?? this.awaitingPayment,
-        awaitingAuth: awaitingAuth ?? this.awaitingAuth,
-        confirmed: confirmed ?? this.confirmed,
-        supplier: supplier,
-        total: total,
-        lines: lines,
-        approved: approved ?? this.approved,
-        productId: productId,
-        reason: reason,
-        recommendation: recommendation,
-        items: items,
-      );
+  }) => ChatMsg(
+    id: id,
+    role: role,
+    kind: kind,
+    text: text,
+    sale: sale ?? this.sale,
+    awaitingPayment: awaitingPayment ?? this.awaitingPayment,
+    awaitingAuth: awaitingAuth ?? this.awaitingAuth,
+    confirmed: confirmed ?? this.confirmed,
+    supplier: supplier,
+    total: total,
+    lines: lines,
+    approved: approved ?? this.approved,
+    productId: productId,
+    reason: reason,
+    recommendation: recommendation,
+    items: items,
+  );
 
   static ChatMsg userText(String id, String text) =>
       ChatMsg(id: id, role: Role.user, kind: MsgKind.text, text: text);
@@ -159,7 +159,9 @@ class LumoStore extends ChangeNotifier {
   int get cartCount => cart.fold(0, (sum, l) => sum + l.qty);
 
   int get cartTotal => cart.fold(
-      0, (sum, l) => sum + (productById(l.productId)?.price ?? 0) * l.qty);
+    0,
+    (sum, l) => sum + (productById(l.productId)?.price ?? 0) * l.qty,
+  );
 
   int commentCountFor(String productId) =>
       videoComments[productId]?.length ?? 0;
@@ -206,7 +208,10 @@ class LumoStore extends ChangeNotifier {
       cart = [
         for (final i in cartItems)
           if (productById(i['productId'] as String) != null)
-            CartLine(productId: i['productId'] as String, qty: (i['qty'] as num).toInt()),
+            CartLine(
+              productId: i['productId'] as String,
+              qty: (i['qty'] as num).toInt(),
+            ),
       ];
       serverOnline = true;
     } catch (_) {
@@ -278,8 +283,7 @@ class LumoStore extends ChangeNotifier {
       ),
       topProducts: topProducts,
       openAuth: 0,
-      inventoryValue:
-          products.fold(0, (acc, p) => acc + p.stock * p.price),
+      inventoryValue: products.fold(0, (acc, p) => acc + p.stock * p.price),
       lowStockCount: products.where((p) {
         final avg = p.avgDaily ?? 0;
         return avg > 0 && p.stock < avg;
@@ -407,9 +411,7 @@ class LumoStore extends ChangeNotifier {
     products = [
       for (final p in products)
         if (sale.lines.any((l) => l.productId == p.id))
-          p.copyWith(
-            stock: _max0(p.stock - _qtyOf(sale.lines, p.id)),
-          )
+          p.copyWith(stock: _max0(p.stock - _qtyOf(sale.lines, p.id)))
         else
           p,
     ];
@@ -418,7 +420,9 @@ class LumoStore extends ChangeNotifier {
         id: 'tl-${sale.id}',
         time: sale.at,
         title: 'Venta por ${mxn(sale.total)} (${_payName(sale.payment)}).',
-        detail: sale.authCode != null ? 'Autorización: ${sale.authCode}.' : null,
+        detail: sale.authCode != null
+            ? 'Autorización: ${sale.authCode}.'
+            : null,
         tag: 'Venta',
       ),
       ...timeline,
@@ -430,7 +434,10 @@ class LumoStore extends ChangeNotifier {
         group: 'Hoy',
         title: 'Registraste una venta de ${mxn(sale.total)}.',
         detail: sale.lines
-            .map((l) => '${l.qty} × ${productById(l.productId)?.name ?? l.productId}')
+            .map(
+              (l) =>
+                  '${l.qty} × ${productById(l.productId)?.name ?? l.productId}',
+            )
             .join(', '),
         kind: 'Registrado',
       ),
@@ -440,7 +447,8 @@ class LumoStore extends ChangeNotifier {
       unawaited(() async {
         final serverId = await api.registerSale({
           'lines': [
-            for (final l in sale.lines) {'product_id': l.productId, 'qty': l.qty},
+            for (final l in sale.lines)
+              {'product_id': l.productId, 'qty': l.qty},
           ],
           'payment': _payName(sale.payment),
           'total': sale.total,
@@ -502,9 +510,7 @@ class LumoStore extends ChangeNotifier {
 
   /// Cierra el día: registra en el server (si puede) y refresca resumen/eventos.
   Future<bool> closeDay({String? note}) async {
-    final ok = serverOnline
-        ? await api.registerClosing(note: note)
-        : false;
+    final ok = serverOnline ? await api.registerClosing(note: note) : false;
     await refreshSummary();
     await _hydrateEvents();
     timeline.insert(
@@ -529,12 +535,14 @@ class LumoStore extends ChangeNotifier {
           p,
     ];
     if (serverOnline) {
-      unawaited(api.registerDelivery({
-        'lines': [
-          for (final l in lines) {'product_id': l.productId, 'qty': l.qty},
-        ],
-        'supplier': ?supplier,
-      }));
+      unawaited(
+        api.registerDelivery({
+          'lines': [
+            for (final l in lines) {'product_id': l.productId, 'qty': l.qty},
+          ],
+          'supplier': ?supplier,
+        }),
+      );
     }
     notifyListeners();
   }
@@ -556,7 +564,10 @@ class LumoStore extends ChangeNotifier {
             l,
       ];
     } else {
-      cart = [...cart, CartLine(productId: productId, qty: qty.clamp(1, stock))];
+      cart = [
+        ...cart,
+        CartLine(productId: productId, qty: qty.clamp(1, stock)),
+      ];
     }
     notifyListeners();
     if (serverOnline) api.addCartItem(productId, qty: qty);
@@ -565,11 +576,17 @@ class LumoStore extends ChangeNotifier {
   void setCartQty(String productId, int qty) {
     final stock = productById(productId)?.stock ?? 0;
     if (qty <= 0) {
-      cart = [for (final l in cart) if (l.productId != productId) l];
+      cart = [
+        for (final l in cart)
+          if (l.productId != productId) l,
+      ];
     } else {
       cart = [
         for (final l in cart)
-          if (l.productId == productId) l.copyWith(qty: qty.clamp(1, stock)) else l,
+          if (l.productId == productId)
+            l.copyWith(qty: qty.clamp(1, stock))
+          else
+            l,
       ];
     }
     notifyListeners();
@@ -624,7 +641,9 @@ class LumoStore extends ChangeNotifier {
     if (cart.isEmpty) return null;
     final sale = Sale(
       id: uid(),
-      lines: [for (final l in cart) SaleLine(productId: l.productId, qty: l.qty)],
+      lines: [
+        for (final l in cart) SaleLine(productId: l.productId, qty: l.qty),
+      ],
       total: cartTotal,
       payment: payment,
       at: _now(),
@@ -706,7 +725,7 @@ class LumoStore extends ChangeNotifier {
 
 class LumoScope extends InheritedNotifier<LumoStore> {
   const LumoScope({super.key, required LumoStore store, required super.child})
-      : super(notifier: store);
+    : super(notifier: store);
 
   static LumoStore of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<LumoScope>();

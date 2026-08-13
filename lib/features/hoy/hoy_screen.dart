@@ -203,7 +203,11 @@ class HoyScreen extends StatelessWidget {
                     children: [
                       const TextSpan(
                         text: 'Llevas ',
-                        style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
+                        style: TextStyle(
+                          fontSize: 15,
+                          height: 1.5,
+                          color: AppColors.foreground,
+                        ),
                       ),
                       TextSpan(
                         text: mxn(total),
@@ -215,7 +219,11 @@ class HoyScreen extends StatelessWidget {
                       ),
                       TextSpan(
                         text: ' en $ops operaciones. ',
-                        style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
+                        style: TextStyle(
+                          fontSize: 15,
+                          height: 1.5,
+                          color: AppColors.foreground,
+                        ),
                       ),
                       TextSpan(
                         text: s != null && s.topProducts.isNotEmpty
@@ -230,11 +238,19 @@ class HoyScreen extends StatelessWidget {
                       if (oficina != null)
                         TextSpan(
                           text: '. $oficina',
-                          style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
+                          style: TextStyle(
+                            fontSize: 15,
+                            height: 1.5,
+                            color: AppColors.foreground,
+                          ),
                         ),
                       TextSpan(
                         text: '.',
-                        style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
+                        style: TextStyle(
+                          fontSize: 15,
+                          height: 1.5,
+                          color: AppColors.foreground,
+                        ),
                       ),
                     ],
                   ),
@@ -258,15 +274,26 @@ class HoyScreen extends StatelessWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                for (final q in ['¿Por qué vendimos más?', 'Ver ventas con tarjeta', '¿Qué se puede agotar?', 'Comparar con la semana pasada'])
+                for (final q in [
+                  '¿Por qué vendimos más?',
+                  'Ver ventas con tarjeta',
+                  '¿Qué se puede agotar?',
+                  'Comparar con la semana pasada',
+                ])
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 9,
+                      ),
                       decoration: cardDeco(radius: 20),
                       child: Text(
                         q,
-                        style: const TextStyle(fontSize: 14, color: AppColors.foreground),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.foreground,
+                        ),
                       ),
                     ),
                   ),
@@ -291,7 +318,9 @@ class HoyScreen extends StatelessWidget {
                         gradient: aiGradient,
                         borderRadius: BorderRadius.all(Radius.circular(12)),
                       ),
-                      child: const Center(child: Text('🌙', style: TextStyle(fontSize: 18))),
+                      child: const Center(
+                        child: Text('🌙', style: TextStyle(fontSize: 18)),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     const Expanded(
@@ -309,12 +338,18 @@ class HoyScreen extends StatelessWidget {
                           SizedBox(height: 2),
                           Text(
                             'Confirma efectivo y revisa pendientes',
-                            style: TextStyle(fontSize: 12, color: AppColors.mutedForeground),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.mutedForeground,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right_rounded, color: AppColors.mutedForeground),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.mutedForeground,
+                    ),
                   ],
                 ),
               ),
@@ -414,10 +449,22 @@ class _Sparkline extends StatelessWidget {
         const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('8:00', style: TextStyle(fontSize: 10, color: AppColors.mutedForeground)),
-            Text('12:00', style: TextStyle(fontSize: 10, color: AppColors.mutedForeground)),
-            Text('16:00', style: TextStyle(fontSize: 10, color: AppColors.mutedForeground)),
-            Text('20:00', style: TextStyle(fontSize: 10, color: AppColors.mutedForeground)),
+            Text(
+              '8:00',
+              style: TextStyle(fontSize: 10, color: AppColors.mutedForeground),
+            ),
+            Text(
+              '12:00',
+              style: TextStyle(fontSize: 10, color: AppColors.mutedForeground),
+            ),
+            Text(
+              '16:00',
+              style: TextStyle(fontSize: 10, color: AppColors.mutedForeground),
+            ),
+            Text(
+              '20:00',
+              style: TextStyle(fontSize: 10, color: AppColors.mutedForeground),
+            ),
           ],
         ),
       ],

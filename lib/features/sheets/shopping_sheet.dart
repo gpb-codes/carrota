@@ -43,13 +43,18 @@ class ShoppingSheet extends StatelessWidget {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       border: i > 0
-                          ? const Border(top: BorderSide(color: AppColors.hairline))
+                          ? const Border(
+                              top: BorderSide(color: AppColors.hairline),
+                            )
                           : null,
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(_items[i].$1, style: const TextStyle(fontSize: 22)),
+                        Text(
+                          _items[i].$1,
+                          style: const TextStyle(fontSize: 22),
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(
@@ -113,7 +118,10 @@ class ShoppingSheet extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.foreground,
                   side: const BorderSide(color: AppColors.hairline),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 13,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -126,7 +134,10 @@ class ShoppingSheet extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.foreground,
                   side: const BorderSide(color: AppColors.hairline),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 13,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),

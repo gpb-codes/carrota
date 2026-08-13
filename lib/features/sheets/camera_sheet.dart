@@ -50,8 +50,11 @@ class _CameraSheetState extends State<CameraSheet> {
         _enterMock();
         return;
       }
-      final controller =
-          CameraController(cams.first, ResolutionPreset.high, enableAudio: false);
+      final controller = CameraController(
+        cams.first,
+        ResolutionPreset.high,
+        enableAudio: false,
+      );
       await controller.initialize();
       if (!mounted) {
         controller.dispose();
@@ -112,10 +115,7 @@ class _CameraSheetState extends State<CameraSheet> {
           const SizedBox(height: 8),
           _buildViewfinder(),
           const SizedBox(height: 16),
-          if (_shot != null) ...[
-            _buildResult(),
-            const SizedBox(height: 12),
-          ],
+          if (_shot != null) ...[_buildResult(), const SizedBox(height: 12)],
           _buildControls(),
         ],
       ),
@@ -148,10 +148,7 @@ class _CameraSheetState extends State<CameraSheet> {
             if (_shot == null)
               CameraPreview(cam)
             else
-              Image.file(
-                File(_shot!.path),
-                fit: BoxFit.cover,
-              ),
+              Image.file(File(_shot!.path), fit: BoxFit.cover),
             if (_shot == null) ...[
               Positioned.fill(
                 child: Container(
@@ -260,7 +257,10 @@ class _CameraSheetState extends State<CameraSheet> {
                   children: [
                     TextSpan(
                       text: 'Encontré una entrega de ',
-                      style: TextStyle(fontSize: 14, color: AppColors.foreground),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.foreground,
+                      ),
                     ),
                     TextSpan(
                       text: 'Huerto Norte',
@@ -272,7 +272,10 @@ class _CameraSheetState extends State<CameraSheet> {
                     ),
                     TextSpan(
                       text: ' por ',
-                      style: TextStyle(fontSize: 14, color: AppColors.foreground),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.foreground,
+                      ),
                     ),
                     TextSpan(
                       text: '\$1,450',
@@ -284,7 +287,10 @@ class _CameraSheetState extends State<CameraSheet> {
                     ),
                     TextSpan(
                       text: '.',
-                      style: TextStyle(fontSize: 14, color: AppColors.foreground),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.foreground,
+                      ),
                     ),
                   ],
                 ),
@@ -297,13 +303,33 @@ class _CameraSheetState extends State<CameraSheet> {
           decoration: cardDeco(radius: 18),
           child: const Column(
             children: [
-              _ReceiptLine(emoji: '🍅', name: 'Tomate saladet', qty: '20 kg', total: 600),
+              _ReceiptLine(
+                emoji: '🍅',
+                name: 'Tomate saladet',
+                qty: '20 kg',
+                total: 600,
+              ),
               Divider(height: 1, color: AppColors.hairline),
-              _ReceiptLine(emoji: '🥬', name: 'Lechuga italiana', qty: '15 piezas', total: 420),
+              _ReceiptLine(
+                emoji: '🥬',
+                name: 'Lechuga italiana',
+                qty: '15 piezas',
+                total: 420,
+              ),
               Divider(height: 1, color: AppColors.hairline),
-              _ReceiptLine(emoji: '🥗', name: 'Espinaca', qty: '10 bolsas', total: 280),
+              _ReceiptLine(
+                emoji: '🥗',
+                name: 'Espinaca',
+                qty: '10 bolsas',
+                total: 280,
+              ),
               Divider(height: 1, color: AppColors.hairline),
-              _ReceiptLine(emoji: '🌿', name: 'Cilantro', qty: '12 manojos', total: 150),
+              _ReceiptLine(
+                emoji: '🌿',
+                name: 'Cilantro',
+                qty: '12 manojos',
+                total: 150,
+              ),
             ],
           ),
         ),
@@ -386,7 +412,10 @@ class _CameraSheetState extends State<CameraSheet> {
                     ),
                     child: const Text(
                       'Agregar al inventario',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
@@ -396,7 +425,10 @@ class _CameraSheetState extends State<CameraSheet> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.foreground,
                     side: const BorderSide(color: AppColors.hairline),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 13,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -495,7 +527,10 @@ class _ReceiptLine extends StatelessWidget {
                 ),
                 Text(
                   qty,
-                  style: const TextStyle(fontSize: 12, color: AppColors.mutedForeground),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.mutedForeground,
+                  ),
                 ),
               ],
             ),

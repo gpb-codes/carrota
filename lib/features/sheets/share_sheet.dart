@@ -5,7 +5,10 @@ import '../../app/widgets/sheet.dart';
 import '../../core/data.dart';
 import '../../core/store.dart';
 
-Future<void> showShareSheet(BuildContext context, {required VideoProduct video}) {
+Future<void> showShareSheet(
+  BuildContext context, {
+  required VideoProduct video,
+}) {
   return showAppSheet(
     context,
     title: 'Compartir video',

@@ -5,8 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class ApiClient {
-  ApiClient({String? baseUrl})
-      : baseUrl = baseUrl ?? defaultBaseUrl();
+  ApiClient({String? baseUrl}) : baseUrl = baseUrl ?? defaultBaseUrl();
 
   final String baseUrl;
 
@@ -20,9 +19,7 @@ class ApiClient {
   }
 
   Future<Map<String, dynamic>?> _get(String path) async {
-    final res = await http
-        .get(Uri.parse('$baseUrl$path'))
-        .timeout(_timeout);
+    final res = await http.get(Uri.parse('$baseUrl$path')).timeout(_timeout);
     if (res.statusCode != 200) return null;
     return jsonDecode(res.body) as Map<String, dynamic>;
   }
@@ -50,15 +47,15 @@ class ApiClient {
   }
 
   Future<bool> _delete(String path) async {
-    final res =
-        await http.delete(Uri.parse('$baseUrl$path')).timeout(_timeout);
+    final res = await http.delete(Uri.parse('$baseUrl$path')).timeout(_timeout);
     return res.statusCode >= 200 && res.statusCode < 300;
   }
 
   Future<bool> health() async {
     try {
-      final res =
-          await http.get(Uri.parse('$baseUrl/api/health')).timeout(_timeout);
+      final res = await http
+          .get(Uri.parse('$baseUrl/api/health'))
+          .timeout(_timeout);
       return res.statusCode == 200;
     } catch (_) {
       return false;
@@ -174,7 +171,8 @@ class ApiClient {
 
   Future<List<Map<String, dynamic>>> fetchProducts() async {
     final data = await _get('/api/products');
-    return ((data?['products'] as List?) ?? const []).cast<Map<String, dynamic>>();
+    return ((data?['products'] as List?) ?? const [])
+        .cast<Map<String, dynamic>>();
   }
 
   Future<Map<String, dynamic>?> fetchProduct(String id) async {
@@ -222,7 +220,8 @@ class ApiClient {
 
   Future<List<Map<String, dynamic>>> fetchInsights() async {
     final data = await _get('/api/insights');
-    return ((data?['insights'] as List?) ?? const []).cast<Map<String, dynamic>>();
+    return ((data?['insights'] as List?) ?? const [])
+        .cast<Map<String, dynamic>>();
   }
 
   Future<List<Map<String, dynamic>>> fetchShopping() async {
@@ -240,7 +239,8 @@ class ApiClient {
 
   Future<List<Map<String, dynamic>>> fetchEvents({String? type}) async {
     final data = await _get('/api/events${type == null ? '' : '?type=$type'}');
-    return ((data?['events'] as List?) ?? const []).cast<Map<String, dynamic>>();
+    return ((data?['events'] as List?) ?? const [])
+        .cast<Map<String, dynamic>>();
   }
 
   Future<Map<String, dynamic>?> fetchBusiness() async {

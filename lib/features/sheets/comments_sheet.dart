@@ -4,7 +4,10 @@ import '../../app/theme.dart';
 import '../../core/data.dart';
 import '../../core/store.dart';
 
-Future<void> showCommentsSheet(BuildContext context, {required VideoProduct video}) {
+Future<void> showCommentsSheet(
+  BuildContext context, {
+  required VideoProduct video,
+}) {
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -88,7 +91,10 @@ class _CommentsSheetState extends State<CommentsSheet> {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.surface2,
                       borderRadius: BorderRadius.circular(999),

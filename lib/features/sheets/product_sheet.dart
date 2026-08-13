@@ -174,7 +174,11 @@ class ProductSheet extends StatelessWidget {
                 const SizedBox(height: 8),
                 const Text(
                   'Las ventas aumentaron desde que comenzó la promoción de ensaladas. Al ritmo actual, el producto podría agotarse mañana antes de las 2 PM.',
-                  style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.5,
+                    color: AppColors.foreground,
+                  ),
                 ),
               ],
             ),
@@ -195,7 +199,10 @@ class ProductSheet extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.foreground,
                     side: const BorderSide(color: AppColors.hairline),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(999),
                     ),
