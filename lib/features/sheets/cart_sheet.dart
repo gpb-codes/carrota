@@ -6,7 +6,11 @@ import '../../core/data.dart';
 import '../../core/store.dart';
 
 Future<void> showCartSheet(BuildContext context) {
-  return showAppSheet(context, title: 'Tu venta', builder: (ctx) => const CartSheet());
+  return showAppSheet(
+    context,
+    title: 'Tu venta',
+    builder: (ctx) => const CartSheet(),
+  );
 }
 
 class CartSheet extends StatefulWidget {
@@ -71,7 +75,10 @@ class _CartSheetState extends State<CartSheet> {
           const SizedBox(height: 4),
           Text(
             '${store.cartCount} productos listos para registrar',
-            style: const TextStyle(fontSize: 13, color: AppColors.mutedForeground),
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.mutedForeground,
+            ),
           ),
           const SizedBox(height: 8),
           Container(
@@ -128,10 +135,14 @@ class _CartSheetState extends State<CartSheet> {
                   labelStyle: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: _method == m ? AppColors.primary : AppColors.foreground,
+                    color: _method == m
+                        ? AppColors.primary
+                        : AppColors.foreground,
                   ),
                   side: BorderSide(
-                    color: _method == m ? AppColors.primary : AppColors.hairline,
+                    color: _method == m
+                        ? AppColors.primary
+                        : AppColors.hairline,
                   ),
                 ),
             ],
@@ -276,8 +287,8 @@ class _StepBtn extends StatelessWidget {
 }
 
 String _payLabel(PaymentMethod m) => switch (m) {
-      PaymentMethod.efectivo => 'Efectivo',
-      PaymentMethod.tarjeta => 'Tarjeta',
-      PaymentMethod.transferencia => 'Transferencia',
-      PaymentMethod.combinado => 'Pago combinado',
-    };
+  PaymentMethod.efectivo => 'Efectivo',
+  PaymentMethod.tarjeta => 'Tarjeta',
+  PaymentMethod.transferencia => 'Transferencia',
+  PaymentMethod.combinado => 'Pago combinado',
+};

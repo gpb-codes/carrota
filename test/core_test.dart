@@ -1,4 +1,4 @@
-﻿import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import 'package:carrota_flutter/core/data.dart';
 import 'package:carrota_flutter/core/mock_ai.dart';
@@ -12,7 +12,10 @@ void main() {
   });
 
   test('parseSale extracts products and quantities', () {
-    final lines = parseSale('Vendí dos tomates, una lechuga y tres cilantro', initialProducts);
+    final lines = parseSale(
+      'Vendí dos tomates, una lechuga y tres cilantro',
+      initialProducts,
+    );
     expect(lines.length, 3);
     final tomate = lines.firstWhere((l) => l.productId == 'tomate');
     expect(tomate.qty, 2);

@@ -62,18 +62,19 @@ class AppText {
 }
 
 ThemeData buildAppTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: AppColors.primary,
-    brightness: Brightness.light,
-  ).copyWith(
-    primary: AppColors.primary,
-    onPrimary: AppColors.primaryForeground,
-    secondary: AppColors.accent,
-    onSecondary: AppColors.foreground,
-    surface: AppColors.surface,
-    onSurface: AppColors.foreground,
-    error: AppColors.danger,
-  );
+  final scheme =
+      ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        brightness: Brightness.light,
+      ).copyWith(
+        primary: AppColors.primary,
+        onPrimary: AppColors.primaryForeground,
+        secondary: AppColors.accent,
+        onSecondary: AppColors.foreground,
+        surface: AppColors.surface,
+        onSurface: AppColors.foreground,
+        error: AppColors.danger,
+      );
 
   final base = ThemeData(useMaterial3: true, colorScheme: scheme);
 
@@ -81,14 +82,28 @@ ThemeData buildAppTheme() {
     scaffoldBackgroundColor: AppColors.background,
     splashFactory: InkSparkle.splashFactory,
     textTheme: base.textTheme.copyWith(
-      bodyLarge: const TextStyle(color: AppColors.foreground, fontSize: 15, height: 1.5),
-      bodyMedium: const TextStyle(color: AppColors.foreground, fontSize: 14, height: 1.4),
-      titleLarge: const TextStyle(color: AppColors.foreground, fontWeight: FontWeight.w600),
+      bodyLarge: const TextStyle(
+        color: AppColors.foreground,
+        fontSize: 15,
+        height: 1.5,
+      ),
+      bodyMedium: const TextStyle(
+        color: AppColors.foreground,
+        fontSize: 14,
+        height: 1.4,
+      ),
+      titleLarge: const TextStyle(
+        color: AppColors.foreground,
+        fontWeight: FontWeight.w600,
+      ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: AppColors.surface,
-      hintStyle: const TextStyle(color: AppColors.mutedForeground, fontSize: 15),
+      hintStyle: const TextStyle(
+        color: AppColors.mutedForeground,
+        fontSize: 15,
+      ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

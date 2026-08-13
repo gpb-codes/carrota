@@ -84,7 +84,10 @@ class NegocioScreen extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: _InfoRow(label: 'Pagos', value: 'Efectivo · Tarjeta · Transf.'),
+                  child: _InfoRow(
+                    label: 'Pagos',
+                    value: 'Efectivo · Tarjeta · Transf.',
+                  ),
                 ),
                 Expanded(
                   child: _InfoRow(label: 'Memoria', value: 'Activa'),
@@ -95,14 +98,16 @@ class NegocioScreen extends StatelessWidget {
           const SizedBox(height: 20),
           Row(
             children: [
-              Expanded(
-                child: _MiniLabel('Productos'),
-              ),
+              Expanded(child: _MiniLabel('Productos')),
               InkWell(
                 onTap: onOpenShopping,
                 child: const Text(
                   'Compra sugerida →',
-                  style: TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
@@ -268,7 +273,10 @@ class _ProductRow extends StatelessWidget {
                   ),
                   Text(
                     '${product.stock} ${product.unit}${low ? ' · atención' : ''}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.mutedForeground),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.mutedForeground,
+                    ),
                   ),
                 ],
               ),
@@ -282,7 +290,10 @@ class _ProductRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.mutedForeground),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.mutedForeground,
+            ),
           ],
         ),
       ),
@@ -360,7 +371,10 @@ class _SettingsRow extends StatelessWidget {
               style: const TextStyle(fontSize: 14, color: AppColors.foreground),
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.mutedForeground),
+          const Icon(
+            Icons.chevron_right_rounded,
+            color: AppColors.mutedForeground,
+          ),
         ],
       ),
     );

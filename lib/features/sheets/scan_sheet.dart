@@ -42,7 +42,9 @@ class _ScanSheetState extends State<ScanSheet> {
 
   void _onDetect(BarcodeCapture capture) {
     if (_found != null || _notFound) return;
-    final raw = capture.barcodes.isNotEmpty ? capture.barcodes.first.rawValue : null;
+    final raw = capture.barcodes.isNotEmpty
+        ? capture.barcodes.first.rawValue
+        : null;
     if (raw == null || raw.isEmpty) return;
     final store = LumoScope.of(context);
     final product = store.productByBarcode(raw);
@@ -100,8 +102,8 @@ class _ScanSheetState extends State<ScanSheet> {
                     onAgain: _reset,
                   )
                 : _notFound
-                    ? _NotFoundCard(onAgain: _reset)
-                    : const _HintBar(),
+                ? _NotFoundCard(onAgain: _reset)
+                : const _HintBar(),
           ),
         ],
       ),
@@ -223,7 +225,9 @@ class _FoundCard extends StatelessWidget {
                     store.addToCart(product.id);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('${product.emoji} ${product.name} al carrito'),
+                        content: Text(
+                          '${product.emoji} ${product.name} al carrito',
+                        ),
                         duration: const Duration(seconds: 2),
                       ),
                     );
@@ -239,7 +243,9 @@ class _FoundCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () => store.receiveDelivery([SaleLine(productId: product.id, qty: 1)]),
+                  onPressed: () => store.receiveDelivery([
+                    SaleLine(productId: product.id, qty: 1),
+                  ]),
                   icon: const Icon(Icons.add_box_rounded, size: 18),
                   label: const Text('Recibir 1'),
                   style: OutlinedButton.styleFrom(
@@ -314,8 +320,11 @@ class _ScanError extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.no_photography_outlined,
-              size: 48, color: Colors.white38),
+          const Icon(
+            Icons.no_photography_outlined,
+            size: 48,
+            color: Colors.white38,
+          ),
           const SizedBox(height: 12),
           const Text(
             'No pude abrir la cámara.\nRevisa el permiso en los ajustes.',

@@ -26,7 +26,9 @@ class _ClosingSheetState extends State<ClosingSheet> {
   Future<void> _close() async {
     final store = LumoScope.of(context);
     setState(() => _saving = true);
-    await store.closeDay(note: _controller.text.trim().isEmpty ? null : _controller.text.trim());
+    await store.closeDay(
+      note: _controller.text.trim().isEmpty ? null : _controller.text.trim(),
+    );
     if (!mounted) return;
     setState(() {
       _saving = false;
@@ -61,7 +63,10 @@ class _ClosingSheetState extends State<ClosingSheet> {
                     SizedBox(width: 10),
                     Text(
                       'Preparé el cierre del día.',
-                      style: TextStyle(fontSize: 15, color: AppColors.foreground),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: AppColors.foreground,
+                      ),
                     ),
                   ],
                 ),
@@ -77,7 +82,10 @@ class _ClosingSheetState extends State<ClosingSheet> {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _ClosingMetric(label: 'Operaciones', value: '$ops'),
+                      child: _ClosingMetric(
+                        label: 'Operaciones',
+                        value: '$ops',
+                      ),
                     ),
                   ],
                 ),
@@ -109,13 +117,18 @@ class _ClosingSheetState extends State<ClosingSheet> {
                           style: TextStyle(
                             fontSize: 11,
                             letterSpacing: 1,
-                            color: AppColors.mutedForeground.withValues(alpha: 0.9),
+                            color: AppColors.mutedForeground.withValues(
+                              alpha: 0.9,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${s.openAuth} venta(s) con tarjeta no tienen código de autorización.',
-                          style: const TextStyle(fontSize: 14, color: AppColors.foreground),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.foreground,
+                          ),
                         ),
                       ],
                     ),
@@ -132,7 +145,10 @@ class _ClosingSheetState extends State<ClosingSheet> {
                           children: [
                             const TextSpan(
                               text: 'Según las ventas, deberías tener ',
-                              style: TextStyle(fontSize: 14, color: AppColors.foreground),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.foreground,
+                              ),
                             ),
                             TextSpan(
                               text: mxn(expected),
@@ -144,7 +160,10 @@ class _ClosingSheetState extends State<ClosingSheet> {
                             ),
                             const TextSpan(
                               text: ' en efectivo. ¿Cuánto contaste?',
-                              style: TextStyle(fontSize: 14, color: AppColors.foreground),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.foreground,
+                              ),
                             ),
                           ],
                         ),
@@ -171,7 +190,10 @@ class _ClosingSheetState extends State<ClosingSheet> {
                         const SizedBox(height: 8),
                         Text(
                           'Hay una diferencia de ${mxn(diff.abs())}. ¿Quieres agregar una nota o revisar las ventas en efectivo?',
-                          style: const TextStyle(fontSize: 14, color: AppColors.amber),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppColors.amber,
+                          ),
                         ),
                       ],
                     ],
@@ -195,7 +217,10 @@ class _ClosingSheetState extends State<ClosingSheet> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text('Agregar nota', style: TextStyle(fontSize: 14)),
+                      child: const Text(
+                        'Agregar nota',
+                        style: TextStyle(fontSize: 14),
+                      ),
                     ),
                     OutlinedButton(
                       onPressed: () {},
@@ -210,7 +235,10 @@ class _ClosingSheetState extends State<ClosingSheet> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text('Revisar ventas', style: TextStyle(fontSize: 14)),
+                      child: const Text(
+                        'Revisar ventas',
+                        style: TextStyle(fontSize: 14),
+                      ),
                     ),
                     SizedBox(
                       width: double.infinity,
@@ -220,8 +248,9 @@ class _ClosingSheetState extends State<ClosingSheet> {
                           backgroundColor: AppColors.primary,
                           foregroundColor: AppColors.primaryForeground,
                           padding: const EdgeInsets.symmetric(vertical: 13),
-                          disabledBackgroundColor:
-                              AppColors.primary.withValues(alpha: 0.4),
+                          disabledBackgroundColor: AppColors.primary.withValues(
+                            alpha: 0.4,
+                          ),
                           disabledForegroundColor: AppColors.primaryForeground,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -229,7 +258,10 @@ class _ClosingSheetState extends State<ClosingSheet> {
                         ),
                         child: Text(
                           _saving ? 'Cerrando…' : 'Cerrar el día',
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),
@@ -261,7 +293,11 @@ class _ClosingSheetState extends State<ClosingSheet> {
                 const Text(
                   'Cierre guardado. El resumen del día y la memoria se actualizaron.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.5,
+                    color: AppColors.foreground,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 FilledButton(
@@ -300,7 +336,9 @@ class _ClosingMetric extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: tone == _MetricTone.ok ? AppColors.primarySoft : AppColors.surface2,
+        color: tone == _MetricTone.ok
+            ? AppColors.primarySoft
+            : AppColors.surface2,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

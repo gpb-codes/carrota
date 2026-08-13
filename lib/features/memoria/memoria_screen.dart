@@ -28,7 +28,9 @@ class _MemoriaScreenState extends State<MemoriaScreen> {
     final store = LumoScope.of(context);
     final filtered = store.memory.where((m) {
       if (_q.isEmpty) return true;
-      return '${m.title} ${m.detail ?? ''}'.toLowerCase().contains(_q.toLowerCase());
+      return '${m.title} ${m.detail ?? ''}'.toLowerCase().contains(
+        _q.toLowerCase(),
+      );
     }).toList();
 
     final groups = <String, List<MemoryEvent>>{};
@@ -91,7 +93,8 @@ class _MemoriaScreenState extends State<MemoriaScreen> {
                     controller: _search,
                     onChanged: (v) => setState(() => _q = v),
                     decoration: const InputDecoration(
-                      hintText: 'Pregunta algo sobre la historia de tu negocio…',
+                      hintText:
+                          'Pregunta algo sobre la historia de tu negocio…',
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
@@ -146,8 +149,7 @@ class _MemoriaScreenState extends State<MemoriaScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            for (final m in entry.value)
-              _MemoryCard(event: m),
+            for (final m in entry.value) _MemoryCard(event: m),
             const SizedBox(height: 16),
           ],
           const SizedBox(height: 4),
@@ -159,7 +161,11 @@ class _MemoriaScreenState extends State<MemoriaScreen> {
               children: [
                 _MiniLabel('Actividad'),
                 const SizedBox(height: 12),
-                for (var i = 0; i < store.timeline.length; i++) _TimelineRow(t: store.timeline[i], isLast: i == store.timeline.length - 1),
+                for (var i = 0; i < store.timeline.length; i++)
+                  _TimelineRow(
+                    t: store.timeline[i],
+                    isLast: i == store.timeline.length - 1,
+                  ),
               ],
             ),
           ),
@@ -213,27 +219,42 @@ class _MemoryCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 event.when,
-                style: const TextStyle(fontSize: 11, color: AppColors.mutedForeground),
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.mutedForeground,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             event.title,
-            style: const TextStyle(fontSize: 15, height: 1.5, color: AppColors.foreground),
+            style: const TextStyle(
+              fontSize: 15,
+              height: 1.5,
+              color: AppColors.foreground,
+            ),
           ),
           if (event.detail != null) ...[
             const SizedBox(height: 4),
             Text(
               event.detail!,
-              style: const TextStyle(fontSize: 14, color: AppColors.mutedForeground),
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.mutedForeground,
+              ),
             ),
           ],
           const SizedBox(height: 10),
           Wrap(
             spacing: 16,
             children: [
-              for (final action in ['Ver evidencia', 'Corregir', 'Olvidar', 'Explicar'])
+              for (final action in [
+                'Ver evidencia',
+                'Corregir',
+                'Olvidar',
+                'Explicar',
+              ])
                 InkWell(
                   onTap: () {},
                   child: Text(
@@ -277,9 +298,7 @@ class _TimelineRow extends StatelessWidget {
                 ),
               ),
               if (!isLast)
-                Expanded(
-                  child: Container(width: 1, color: AppColors.hairline),
-                ),
+                Expanded(child: Container(width: 1, color: AppColors.hairline)),
             ],
           ),
           const SizedBox(width: 12),

@@ -15,7 +15,8 @@ class TiendaScreen extends StatelessWidget {
     return PageView.builder(
       scrollDirection: Axis.vertical,
       itemCount: videoFeed.length,
-      itemBuilder: (context, index) => _VideoPage(video: videoFeed[index], index: index),
+      itemBuilder: (context, index) =>
+          _VideoPage(video: videoFeed[index], index: index),
     );
   }
 }
@@ -30,8 +31,7 @@ class _VideoPage extends StatefulWidget {
   State<_VideoPage> createState() => _VideoPageState();
 }
 
-class _VideoPageState extends State<_VideoPage>
-    with TickerProviderStateMixin {
+class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
   late final AnimationController _pulse = AnimationController(
     vsync: this,
     duration: const Duration(seconds: 6),
@@ -78,7 +78,11 @@ class _VideoPageState extends State<_VideoPage>
           duration: const Duration(seconds: 2),
           content: Row(
             children: [
-              const Icon(Icons.check_circle_rounded, size: 18, color: AppColors.accent),
+              const Icon(
+                Icons.check_circle_rounded,
+                size: 18,
+                color: AppColors.accent,
+              ),
               const SizedBox(width: 8),
               Text('Agregado a tu venta · ${store.cartCount} productos'),
             ],
@@ -174,7 +178,10 @@ class _VideoPageState extends State<_VideoPage>
                   ),
                   child: ScaleTransition(
                     scale: Tween(begin: 0.6, end: 1.25).animate(
-                      CurvedAnimation(parent: _burst, curve: Curves.easeOutBack),
+                      CurvedAnimation(
+                        parent: _burst,
+                        curve: Curves.easeOutBack,
+                      ),
                     ),
                     child: Icon(
                       Icons.favorite_rounded,
@@ -431,7 +438,8 @@ class _VideoPageState extends State<_VideoPage>
                             icon: Icons.chat_bubble_rounded,
                             color: Colors.white,
                             label: _k(comments),
-                            onTap: () => showCommentsSheet(context, video: video),
+                            onTap: () =>
+                                showCommentsSheet(context, video: video),
                           ),
                           const SizedBox(height: 18),
                           _RailAction(

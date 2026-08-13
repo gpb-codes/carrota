@@ -22,16 +22,16 @@ class Product {
   });
 
   Product copyWith({int? stock}) => Product(
-        id: id,
-        name: name,
-        unit: unit,
-        price: price,
-        stock: stock ?? this.stock,
-        emoji: emoji,
-        supplier: supplier,
-        avgDaily: avgDaily,
-        barcode: barcode,
-      );
+    id: id,
+    name: name,
+    unit: unit,
+    price: price,
+    stock: stock ?? this.stock,
+    emoji: emoji,
+    supplier: supplier,
+    avgDaily: avgDaily,
+    barcode: barcode,
+  );
 }
 
 class MemoryEvent {
@@ -94,14 +94,94 @@ String mxn(int n) {
 }
 
 const initialProducts = <Product>[
-  Product(id: 'tomate', name: 'Tomate saladet', unit: 'kg', price: 30, stock: 42, emoji: '🍅', supplier: 'Huerto Norte', avgDaily: 12, barcode: '7501055300017'),
-  Product(id: 'lechuga', name: 'Lechuga italiana', unit: 'pieza', price: 28, stock: 4, emoji: '🥬', supplier: 'Huerto Norte', avgDaily: 6, barcode: '7501055300024'),
-  Product(id: 'zanahoria', name: 'Zanahoria', unit: 'kg', price: 20, stock: 18, emoji: '🥕', supplier: 'Milpa Verde', avgDaily: 5, barcode: '7501055300031'),
-  Product(id: 'cilantro', name: 'Cilantro', unit: 'manojo', price: 12, stock: 3, emoji: '🌿', supplier: 'Milpa Verde', avgDaily: 8, barcode: '7501055300048'),
-  Product(id: 'espinaca', name: 'Espinaca', unit: 'bolsa', price: 28, stock: 14, emoji: '🥗', supplier: 'Huerto Norte', avgDaily: 6, barcode: '7501055300055'),
-  Product(id: 'aguacate', name: 'Aguacate', unit: 'kg', price: 55, stock: 22, emoji: '🥑', supplier: 'Milpa Verde', avgDaily: 4, barcode: '7501055300062'),
-  Product(id: 'limon', name: 'Limón', unit: 'kg', price: 32, stock: 30, emoji: '🍋', supplier: 'Cítricos del Bajío', avgDaily: 7, barcode: '7501055300079'),
-  Product(id: 'mermelada', name: 'Mermelada artesanal', unit: 'frasco', price: 95, stock: 12, emoji: '🍯', supplier: 'Taller La Abeja', avgDaily: 2, barcode: '7501055300086'),
+  Product(
+    id: 'tomate',
+    name: 'Tomate saladet',
+    unit: 'kg',
+    price: 30,
+    stock: 42,
+    emoji: '🍅',
+    supplier: 'Huerto Norte',
+    avgDaily: 12,
+    barcode: '7501055300017',
+  ),
+  Product(
+    id: 'lechuga',
+    name: 'Lechuga italiana',
+    unit: 'pieza',
+    price: 28,
+    stock: 4,
+    emoji: '🥬',
+    supplier: 'Huerto Norte',
+    avgDaily: 6,
+    barcode: '7501055300024',
+  ),
+  Product(
+    id: 'zanahoria',
+    name: 'Zanahoria',
+    unit: 'kg',
+    price: 20,
+    stock: 18,
+    emoji: '🥕',
+    supplier: 'Milpa Verde',
+    avgDaily: 5,
+    barcode: '7501055300031',
+  ),
+  Product(
+    id: 'cilantro',
+    name: 'Cilantro',
+    unit: 'manojo',
+    price: 12,
+    stock: 3,
+    emoji: '🌿',
+    supplier: 'Milpa Verde',
+    avgDaily: 8,
+    barcode: '7501055300048',
+  ),
+  Product(
+    id: 'espinaca',
+    name: 'Espinaca',
+    unit: 'bolsa',
+    price: 28,
+    stock: 14,
+    emoji: '🥗',
+    supplier: 'Huerto Norte',
+    avgDaily: 6,
+    barcode: '7501055300055',
+  ),
+  Product(
+    id: 'aguacate',
+    name: 'Aguacate',
+    unit: 'kg',
+    price: 55,
+    stock: 22,
+    emoji: '🥑',
+    supplier: 'Milpa Verde',
+    avgDaily: 4,
+    barcode: '7501055300062',
+  ),
+  Product(
+    id: 'limon',
+    name: 'Limón',
+    unit: 'kg',
+    price: 32,
+    stock: 30,
+    emoji: '🍋',
+    supplier: 'Cítricos del Bajío',
+    avgDaily: 7,
+    barcode: '7501055300079',
+  ),
+  Product(
+    id: 'mermelada',
+    name: 'Mermelada artesanal',
+    unit: 'frasco',
+    price: 95,
+    stock: 12,
+    emoji: '🍯',
+    supplier: 'Taller La Abeja',
+    avgDaily: 2,
+    barcode: '7501055300086',
+  ),
 ];
 
 const seedMemories = <MemoryEvent>[
@@ -140,11 +220,38 @@ const seedMemories = <MemoryEvent>[
 ];
 
 const seedTimeline = <TimelineEvent>[
-  TimelineEvent(id: 't1', time: '18:42', title: 'Cierre diario preparado.', detail: 'Ventas totales: \$8,250.', tag: 'Cierre'),
-  TimelineEvent(id: 't2', time: '17:15', title: 'Llegaron 20 kg de tomate de Huerto Norte.', tag: 'Inventario'),
-  TimelineEvent(id: 't3', time: '16:38', title: 'Venta con tarjeta por \$280.', detail: 'Autorización: 683194.', tag: 'Venta'),
-  TimelineEvent(id: 't4', time: '14:20', title: 'El precio de la lechuga cambió de \$25 a \$28.', tag: 'Precio'),
-  TimelineEvent(id: 't5', time: '11:05', title: 'El cilantro llegó a nivel crítico.', tag: 'Alerta'),
+  TimelineEvent(
+    id: 't1',
+    time: '18:42',
+    title: 'Cierre diario preparado.',
+    detail: 'Ventas totales: \$8,250.',
+    tag: 'Cierre',
+  ),
+  TimelineEvent(
+    id: 't2',
+    time: '17:15',
+    title: 'Llegaron 20 kg de tomate de Huerto Norte.',
+    tag: 'Inventario',
+  ),
+  TimelineEvent(
+    id: 't3',
+    time: '16:38',
+    title: 'Venta con tarjeta por \$280.',
+    detail: 'Autorización: 683194.',
+    tag: 'Venta',
+  ),
+  TimelineEvent(
+    id: 't4',
+    time: '14:20',
+    title: 'El precio de la lechuga cambió de \$25 a \$28.',
+    tag: 'Precio',
+  ),
+  TimelineEvent(
+    id: 't5',
+    time: '11:05',
+    title: 'El cilantro llegó a nivel crítico.',
+    tag: 'Alerta',
+  ),
 ];
 
 class Briefing {
@@ -168,7 +275,8 @@ class ByPaymentTotals {
     this.combinado = 0,
   });
 
-  factory ByPaymentTotals.fromJson(Map<String, dynamic> json) => ByPaymentTotals(
+  factory ByPaymentTotals.fromJson(Map<String, dynamic> json) =>
+      ByPaymentTotals(
         efectivo: (json['efectivo'] as num?)?.toInt() ?? 0,
         tarjeta: (json['tarjeta'] as num?)?.toInt() ?? 0,
         transferencia: (json['transferencia'] as num?)?.toInt() ?? 0,
@@ -212,26 +320,26 @@ class BizSummary {
   });
 
   factory BizSummary.fromJson(Map<String, dynamic> json) => BizSummary(
-        date: json['date'] as String? ?? '',
-        salesTotal: (json['salesTotal'] as num?)?.toInt() ?? 0,
-        salesCount: (json['salesCount'] as num?)?.toInt() ?? 0,
-        byPayment: ByPaymentTotals.fromJson(
-          (json['byPayment'] as Map<String, dynamic>?) ?? const {},
-        ),
-        topProducts: [
-          for (final t in (json['topProducts'] as List?) ?? const [])
-            if (t is Map<String, dynamic>)
-              TopProduct(
-                productId: t['productId'] as String? ?? '',
-                name: t['name'] as String? ?? '',
-                emoji: t['emoji'] as String? ?? '🛒',
-                qty: (t['qty'] as num?)?.toInt() ?? 0,
-              ),
-        ],
-        openAuth: (json['openAuth'] as num?)?.toInt() ?? 0,
-        inventoryValue: (json['inventoryValue'] as num?)?.toInt() ?? 0,
-        lowStockCount: (json['lowStockCount'] as num?)?.toInt() ?? 0,
-      );
+    date: json['date'] as String? ?? '',
+    salesTotal: (json['salesTotal'] as num?)?.toInt() ?? 0,
+    salesCount: (json['salesCount'] as num?)?.toInt() ?? 0,
+    byPayment: ByPaymentTotals.fromJson(
+      (json['byPayment'] as Map<String, dynamic>?) ?? const {},
+    ),
+    topProducts: [
+      for (final t in (json['topProducts'] as List?) ?? const [])
+        if (t is Map<String, dynamic>)
+          TopProduct(
+            productId: t['productId'] as String? ?? '',
+            name: t['name'] as String? ?? '',
+            emoji: t['emoji'] as String? ?? '🛒',
+            qty: (t['qty'] as num?)?.toInt() ?? 0,
+          ),
+    ],
+    openAuth: (json['openAuth'] as num?)?.toInt() ?? 0,
+    inventoryValue: (json['inventoryValue'] as num?)?.toInt() ?? 0,
+    lowStockCount: (json['lowStockCount'] as num?)?.toInt() ?? 0,
+  );
 }
 
 const briefing = Briefing(

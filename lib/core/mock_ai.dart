@@ -1,22 +1,46 @@
-﻿import 'data.dart';
+import 'data.dart';
 import 'store.dart';
 
 /// Map of Spanish keywords → product id
 const _keywords = <String, String>{
-  'tomate': 'tomate', 'tomates': 'tomate',
-  'lechuga': 'lechuga', 'lechugas': 'lechuga',
-  'zanahoria': 'zanahoria', 'zanahorias': 'zanahoria',
-  'cilantro': 'cilantro', 'manojo': 'cilantro', 'manojos': 'cilantro',
-  'espinaca': 'espinaca', 'espinacas': 'espinaca',
-  'aguacate': 'aguacate', 'aguacates': 'aguacate',
-  'limon': 'limon', 'limón': 'limon', 'limones': 'limon',
-  'mermelada': 'mermelada', 'mermeladas': 'mermelada',
+  'tomate': 'tomate',
+  'tomates': 'tomate',
+  'lechuga': 'lechuga',
+  'lechugas': 'lechuga',
+  'zanahoria': 'zanahoria',
+  'zanahorias': 'zanahoria',
+  'cilantro': 'cilantro',
+  'manojo': 'cilantro',
+  'manojos': 'cilantro',
+  'espinaca': 'espinaca',
+  'espinacas': 'espinaca',
+  'aguacate': 'aguacate',
+  'aguacates': 'aguacate',
+  'limon': 'limon',
+  'limón': 'limon',
+  'limones': 'limon',
+  'mermelada': 'mermelada',
+  'mermeladas': 'mermelada',
 };
 
 const _numWords = <String, int>{
-  'un': 1, 'una': 1, 'uno': 1, 'dos': 2, 'tres': 3, 'cuatro': 4, 'cinco': 5,
-  'seis': 6, 'siete': 7, 'ocho': 8, 'nueve': 9, 'diez': 10, 'once': 11, 'doce': 12,
-  'quince': 15, 'veinte': 20, 'treinta': 30,
+  'un': 1,
+  'una': 1,
+  'uno': 1,
+  'dos': 2,
+  'tres': 3,
+  'cuatro': 4,
+  'cinco': 5,
+  'seis': 6,
+  'siete': 7,
+  'ocho': 8,
+  'nueve': 9,
+  'diez': 10,
+  'once': 11,
+  'doce': 12,
+  'quince': 15,
+  'veinte': 20,
+  'treinta': 30,
 };
 
 List<SaleLine> parseSale(String input, List<Product> products) {
@@ -69,8 +93,12 @@ enum AppIntent { sale, receive, question, close, unknown }
 AppIntent detectIntent(String input) {
   final t = input.toLowerCase();
   if (RegExp(r'(vend|cobr|venta)').hasMatch(t)) return AppIntent.sale;
-  if (RegExp(r'(lleg|recib|entrega|mercader)').hasMatch(t)) return AppIntent.receive;
+  if (RegExp(r'(lleg|recib|entrega|mercader)').hasMatch(t)) {
+    return AppIntent.receive;
+  }
   if (RegExp(r'(cierr|cerrar|cierre)').hasMatch(t)) return AppIntent.close;
-  if (RegExp(r'(cómo|como vamos|qué|que falt|cuánto|cuanto)').hasMatch(t)) return AppIntent.question;
+  if (RegExp(r'(cómo|como vamos|qué|que falt|cuánto|cuanto)').hasMatch(t)) {
+    return AppIntent.question;
+  }
   return AppIntent.unknown;
 }

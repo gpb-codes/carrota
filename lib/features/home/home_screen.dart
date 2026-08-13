@@ -52,14 +52,20 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     for (var i = 0; i < briefing.paragraphs.length; i++)
                       Padding(
-                        padding: EdgeInsets.only(bottom: i == briefing.paragraphs.length - 1 ? 0 : 6),
+                        padding: EdgeInsets.only(
+                          bottom: i == briefing.paragraphs.length - 1 ? 0 : 6,
+                        ),
                         child: Text(
                           briefing.paragraphs[i],
                           style: TextStyle(
                             fontSize: 15,
                             height: 1.5,
-                            fontWeight: i == 0 ? FontWeight.w500 : FontWeight.w400,
-                            color: i == 0 ? AppColors.foreground : AppColors.foreground.withValues(alpha: 0.85),
+                            fontWeight: i == 0
+                                ? FontWeight.w500
+                                : FontWeight.w400,
+                            color: i == 0
+                                ? AppColors.foreground
+                                : AppColors.foreground.withValues(alpha: 0.85),
                           ),
                         ),
                       ),
@@ -120,7 +126,12 @@ class HomeScreen extends StatelessWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                for (final s in ['Registrar una venta', 'Recibir mercadería', 'Ver qué falta', 'Preparar el cierre'])
+                for (final s in [
+                  'Registrar una venta',
+                  'Recibir mercadería',
+                  'Ver qué falta',
+                  'Preparar el cierre',
+                ])
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: _SuggestionChip(text: s, onTap: () => onStarter(s)),
@@ -160,7 +171,9 @@ class HomeScreen extends StatelessWidget {
                         color: AppColors.amberSoft,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(child: Text('🥬', style: TextStyle(fontSize: 22))),
+                      child: const Center(
+                        child: Text('🥬', style: TextStyle(fontSize: 22)),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     const Expanded(
@@ -178,13 +191,18 @@ class HomeScreen extends StatelessWidget {
                           SizedBox(height: 2),
                           Text(
                             'Quedan 4 piezas · podría agotarse mañana',
-                            style: TextStyle(fontSize: 12, color: AppColors.mutedForeground),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.mutedForeground,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right_rounded,
-                        color: AppColors.mutedForeground),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.mutedForeground,
+                    ),
                   ],
                 ),
               ),
@@ -298,11 +316,18 @@ class _SuggestionChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.auto_awesome, size: 14, color: AppColors.primary),
+              const Icon(
+                Icons.auto_awesome,
+                size: 14,
+                color: AppColors.primary,
+              ),
               const SizedBox(width: 6),
               Text(
                 text,
-                style: const TextStyle(fontSize: 14, color: AppColors.foreground),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.foreground,
+                ),
               ),
             ],
           ),
@@ -370,7 +395,10 @@ class _MetricCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             sub,
-            style: const TextStyle(fontSize: 12, color: AppColors.mutedForeground),
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.mutedForeground,
+            ),
           ),
         ],
       ),
