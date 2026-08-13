@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
@@ -7,9 +7,10 @@ import '../core/mock_ai.dart';
 import '../core/store.dart';
 import '../features/home/home_screen.dart';
 import '../features/hoy/hoy_screen.dart';
-import '../features/launch/launch_screen.dart';
 import '../features/memoria/memoria_screen.dart';
 import '../features/negocio/negocio_screen.dart';
+import '../features/onboarding/provider/conversation_provider.dart';
+import '../features/onboarding/screens/welcome_screen.dart';
 import '../features/sheets/camera_sheet.dart';
 import '../features/sheets/closing_sheet.dart';
 import '../features/sheets/product_sheet.dart';
@@ -48,6 +49,7 @@ class _Shell extends StatefulWidget {
 
 class _ShellState extends State<_Shell> {
   AppTab _tab = AppTab.inicio;
+  final _conversation = ConversationProvider();
 
   @override
   void initState() {
@@ -55,6 +57,12 @@ class _ShellState extends State<_Shell> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       LumoScope.of(context).loadRemote();
     });
+  }
+
+  @override
+  void dispose() {
+    _conversation.dispose();
+    super.dispose();
   }
 
   String _now() {
@@ -113,14 +121,15 @@ class _ShellState extends State<_Shell> {
   Future<void> _llmReply(String text) async {
     final store = LumoScope.of(context);
     List<Map<String, dynamic>> history() => [
-          for (final m in store.chat.length > 8
+      for (final m
+          in store.chat.length > 8
               ? store.chat.sublist(store.chat.length - 8)
               : store.chat)
-            if (m.role == Role.user && m.text != null)
-              {'role': 'user', 'content': m.text!}
-            else if (m.role == Role.lumo && m.text != null)
-              {'role': 'assistant', 'content': m.text!},
-        ];
+        if (m.role == Role.user && m.text != null)
+          {'role': 'user', 'content': m.text!}
+        else if (m.role == Role.lumo && m.text != null)
+          {'role': 'assistant', 'content': m.text!},
+    ];
     final res = await store.api.lumo(text, history: history());
     if (!mounted) return;
     if (res.power && res.reply != null) {
@@ -154,17 +163,20 @@ class _ShellState extends State<_Shell> {
   void _onPickPayment(String id, PaymentMethod method) {
     final store = LumoScope.of(context);
     final msg = store.chat.where((m) => m.id == id).firstOrNull;
-    if (msg == null || msg.role != Role.lumo || msg.kind != MsgKind.saleProposal) {
+    if (msg == null ||
+        msg.role != Role.lumo ||
+        msg.kind != MsgKind.saleProposal) {
       return;
     }
     final sale = msg.sale!;
-    if (method == PaymentMethod.efectivo || method == PaymentMethod.transferencia) {
+    if (method == PaymentMethod.efectivo ||
+        method == PaymentMethod.transferencia) {
       final updated = sale.copyWith(payment: method);
-      store.updateChat(id, (m) => m.copyWith(
-            sale: updated,
-            awaitingPayment: false,
-            confirmed: true,
-          ));
+      store.updateChat(
+        id,
+        (m) =>
+            m.copyWith(sale: updated, awaitingPayment: false, confirmed: true),
+      );
       store.applySale(updated);
       store.pushChat(
         ChatMsg(
@@ -180,11 +192,14 @@ class _ShellState extends State<_Shell> {
         ),
       );
     } else {
-      store.updateChat(id, (m) => m.copyWith(
-            sale: sale.copyWith(payment: method),
-            awaitingPayment: false,
-            awaitingAuth: method == PaymentMethod.tarjeta,
-          ));
+      store.updateChat(
+        id,
+        (m) => m.copyWith(
+          sale: sale.copyWith(payment: method),
+          awaitingPayment: false,
+          awaitingAuth: method == PaymentMethod.tarjeta,
+        ),
+      );
       if (method != PaymentMethod.tarjeta) {
         store.pushChat(
           ChatMsg.lumoText(uid(), '¿Cuánto pagó con cada método?'),
@@ -196,18 +211,19 @@ class _ShellState extends State<_Shell> {
   void _onSubmitAuth(String id, String auth) {
     final store = LumoScope.of(context);
     final msg = store.chat.where((m) => m.id == id).firstOrNull;
-    if (msg == null || msg.role != Role.lumo || msg.kind != MsgKind.saleProposal) {
+    if (msg == null ||
+        msg.role != Role.lumo ||
+        msg.kind != MsgKind.saleProposal) {
       return;
     }
     final sale = msg.sale!.copyWith(
       payment: PaymentMethod.tarjeta,
       authCode: auth,
     );
-    store.updateChat(id, (m) => m.copyWith(
-          sale: sale,
-          awaitingAuth: false,
-          confirmed: true,
-        ));
+    store.updateChat(
+      id,
+      (m) => m.copyWith(sale: sale, awaitingAuth: false, confirmed: true),
+    );
     store.applySale(sale);
     store.pushChat(
       ChatMsg(
@@ -349,15 +365,17 @@ class _ShellState extends State<_Shell> {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (_) => ScanSheet(
-          onOpenProduct: (p) => _openProduct(p.id),
-        ),
+        builder: (_) => ScanSheet(onOpenProduct: (p) => _openProduct(p.id)),
       ),
     );
   }
 
   void _openClosing() {
-    showAppSheet(context, title: 'Cierre del día', builder: (ctx) => const ClosingSheet());
+    showAppSheet(
+      context,
+      title: 'Cierre del día',
+      builder: (ctx) => const ClosingSheet(),
+    );
   }
 
   void _openShopping() {
@@ -387,20 +405,20 @@ class _ShellState extends State<_Shell> {
               Expanded(
                 child: switch (_tab) {
                   AppTab.inicio => HomeScreen(
-                      onPickPayment: _onPickPayment,
-                      onSubmitAuth: _onSubmitAuth,
-                      onApproveReceipt: _onApproveReceipt,
-                      onOpenInsight: _openProduct,
-                      onUndo: _onUndo,
-                      onStarter: _onStarter,
-                      onOpenProduct: _openProduct,
-                    ),
+                    onPickPayment: _onPickPayment,
+                    onSubmitAuth: _onSubmitAuth,
+                    onApproveReceipt: _onApproveReceipt,
+                    onOpenInsight: _openProduct,
+                    onUndo: _onUndo,
+                    onStarter: _onStarter,
+                    onOpenProduct: _openProduct,
+                  ),
                   AppTab.hoy => HoyScreen(onOpenClosing: _openClosing),
                   AppTab.memoria => const MemoriaScreen(),
                   AppTab.negocio => NegocioScreen(
-                      onOpenProduct: _openProduct,
-                      onOpenShopping: _openShopping,
-                    ),
+                    onOpenProduct: _openProduct,
+                    onOpenShopping: _openShopping,
+                  ),
                   AppTab.tienda => const TiendaScreen(),
                 },
               ),
@@ -428,7 +446,8 @@ class _ShellState extends State<_Shell> {
           ),
           if (!store.onboarded)
             Positioned.fill(
-              child: LaunchScreen(
+              child: WelcomeScreen(
+                provider: _conversation,
                 onDone: () => store.setOnboarded(true),
               ),
             ),

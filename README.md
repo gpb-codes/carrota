@@ -27,9 +27,9 @@
 
 ---
 
-## Sobre Carrota
+## ¿Qué es Carrota?
 
-> Un **asistente para tu negocio**: registra ventas, lleva el inventario y prepara el cierre del día conversando con **Lumo**.
+> Un **asistente para tu negocio**: registras ventas, llevas el inventario y preparas el cierre del día conversando con **Lumo**.
 
 Carrota reemplaza la libreta, el cuaderno de deudas y la hoja de cálculo. La app funciona **offline** con datos de ejemplo y, cuando hay un servidor conectado, sincroniza catálogo, stock, ventas, entregas, memoria y compra sugerida.
 
@@ -37,15 +37,43 @@ Carrota reemplaza la libreta, el cuaderno de deudas y la hoja de cálculo. La ap
 
 ---
 
-## Stack Tecnológico
+## Características
 
-<div align="center">
+### Lumo — asistente conversacional
+
+Conversa para registrar ventas, consultar precios, deudas y resúmenes. Lumo recuerda tu negocio: clientes, productos y movimientos.
+
+- Onboarding conversacional en tres etapas (`businessName → businessType → completed`), con validación, envío por botón o teclado y autoscroll.
+- Ventas por chat: escribís "vendí dos tomates y una lechuga" y Lumo prepara la propuesta con pago (efectivo, tarjeta o transferencia) y **deshacer**.
+- Respuestas por voz, cámara para documentos y escáner de código de barras integrado.
+
+### Tienda — feed estilo TikTok Shop
+
+- Feed de productos con likes, comentarios, guardar y compartir.
+- Agregá productos directo a tu venta desde el feed.
+- Scanner de códigos de barras.
+
+### Inventario
+
+- Control de stock y estado de cada producto.
+- Recibí mercadería con la cámara o con el escáner.
+- **Compra sugerida**: el servidor te dice qué comprar según el ritmo de ventas (insights de stock bajo).
+
+### Cierre y negocio
+
+- Resumen diario (Hoy): ventas, métodos de pago, caja, top productos y alertas.
+- Memoria del negocio y timeline de eventos.
+- Panel (Negocio) para cerrar el día en segundos.
+
+<br/>
+
+---
+
+## Stack tecnológico
 
 | | | | | | | | |
 |---|---|---|---|---|---|---|---|
 | <img src="https://skillicons.dev/icons?i=flutter" width="48" /><br/>Flutter | <img src="https://skillicons.dev/icons?i=dart" width="48" /><br/>Dart | <img src="https://skillicons.dev/icons?i=nodejs" width="48" /><br/>Node.js | <img src="https://skillicons.dev/icons?i=sqlite" width="48" /><br/>SQLite | <img src="https://skillicons.dev/icons?i=android" width="48" /><br/>Android | <img src="https://skillicons.dev/icons?i=git" width="48" /><br/>Git | <img src="https://skillicons.dev/icons?i=github" width="48" /><br/>GitHub | <img src="https://skillicons.dev/icons?i=npm" width="48" /><br/>npm |
-
-</div>
 
 > Backend en **Node.js puro** — `node:http` + `node:sqlite`, cero dependencias.
 
@@ -53,174 +81,154 @@ Carrota reemplaza la libreta, el cuaderno de deudas y la hoja de cálculo. La ap
 
 ---
 
-## Capacidades
-
-<div align="center">
-
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <div align="center">
-        <img src="https://img.shields.io/badge/-App_Flutter-1C8742?style=for-the-badge&logo=flutter&logoColor=white" />
-      </div>
-      <br/>
-      <p align="center">
-        <img src="https://img.shields.io/badge/Ventas_por_chat-151B24?style=flat&logo=whatsapp&logoColor=4EC983" /><br/>
-        <img src="https://img.shields.io/badge/Feed_estilo_TikTok_Shop-151B24?style=flat&logo=tiktok&logoColor=00BCC5" /><br/>
-        <img src="https://img.shields.io/badge/Scanner_de_c%C3%B3digos-151B24?style=flat&logo=barcode&logoColor=E1A035" /><br/>
-        <img src="https://img.shields.io/badge/Offline_first-151B24?style=flat&logo=offline&logoColor=4EC983" /><br/>
-        <img src="https://img.shields.io/badge/Resumen_diario_y_memoria-151B24?style=flat&logo=book&logoColor=A682E1" />
-      </p>
-    </td>
-    <td width="50%" valign="top">
-      <div align="center">
-        <img src="https://img.shields.io/badge/-API_Node.js-00BCC5?style=for-the-badge&logo=nodedotjs&logoColor=white" />
-      </div>
-      <br/>
-      <p align="center">
-        <img src="https://img.shields.io/badge/Carrito_y_ventas_con_deshacer-151B24?style=flat&logo=cart&logoColor=00BCC5" /><br/>
-        <img src="https://img.shields.io/badge/Inventario_y_stock-151B24?style=flat&logo=boxes&logoColor=4EC983" /><br/>
-        <img src="https://img.shields.io/badge/Entregas_y_eventos-151B24?style=flat&logo=truck&logoColor=E1A035" /><br/>
-        <img src="https://img.shields.io/badge/Insights_y_compra_sugerida-151B24?style=flat&logo=chart&logoColor=A682E1" /><br/>
-        <img src="https://img.shields.io/badge/Cierre_de_caja-151B24?style=flat&logo=cash&logoColor=4EC983" />
-      </p>
-    </td>
-  </tr>
-</table>
-
-</div>
-
-<br/>
-
----
-
-## Funciones
-
-<div align="center">
-
-<table>
-  <tr>
-    <td width="50%" style="background: linear-gradient(135deg, #151B24 0%, #1C3A28 100%); border-radius: 16px; padding: 24px; border: 2px solid #1C8742;">
-      <div align="center">
-        <img src="https://img.shields.io/badge/LUMO-1C8742?style=for-the-badge&logo=sparkles&logoColor=white" />
-        <br/><br/>
-        <img src="https://img.shields.io/badge/CHAT_DE_VENTAS-4EC983?style=flat&logo=message&logoColor=white" />
-        <img src="https://img.shields.io/badge/CON_MEMORIA-00BCC5?style=flat&logo=book&logoColor=white" />
-      </div>
-      <br/>
-      <p align="center">
-        Conversa para registrar ventas, consultar precios, deudas y resúmenes. Lumo recuerda el negocio: clientes, productos y movimientos.
-      </p>
-    </td>
-    <td width="50%" style="background: linear-gradient(135deg, #151B24 0%, #003A44 100%); border-radius: 16px; padding: 24px; border: 2px solid #00BCC5;">
-      <div align="center">
-        <img src="https://img.shields.io/badge/TIENDA-00BCC5?style=for-the-badge&logo=tiktok&logoColor=white" />
-        <br/><br/>
-        <img src="https://img.shields.io/badge/FEED_TIKTOK_SHOP-4EC983?style=flat&logo=tiktok&logoColor=white" />
-        <img src="https://img.shields.io/badge/LIKES_Y_GUARDADOS-E1A035?style=flat&logo=heart&logoColor=white" />
-      </div>
-      <br/>
-      <p align="center">
-        Feed de productos con likes, comentarios, guardar, compartir y agregar directo a tu venta — con escáner de código de barras integrado.
-      </p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" style="background: linear-gradient(135deg, #151B24 0%, #3A2E1C 100%); border-radius: 16px; padding: 24px; border: 2px solid #E1A035;">
-      <div align="center">
-        <img src="https://img.shields.io/badge/INVENTARIO-E1A035?style=for-the-badge&logo=boxes&logoColor=black" />
-        <br/><br/>
-        <img src="https://img.shields.io/badge/RECIBIR_MERCADER%C3%8DA-4EC983?style=flat&logo=camera&logoColor=white" />
-        <img src="https://img.shields.io/badge/COMPRA_SUGERIDA-A682E1?style=flat&logo=lightbulb&logoColor=white" />
-      </div>
-      <br/>
-      <p align="center">
-        Controla stock y recibe mercadería con la cámara. El servidor sugiere qué comprar según el ritmo de ventas.
-      </p>
-    </td>
-    <td width="50%" style="background: linear-gradient(135deg, #151B24 0%, #2E1C2E 100%); border-radius: 16px; padding: 24px; border: 2px solid #A682E1;">
-      <div align="center">
-        <img src="https://img.shields.io/badge/CIERRE-A682E1?style=for-the-badge&logo=cash&logoColor=white" />
-        <br/><br/>
-        <img src="https://img.shields.io/badge/RESUMEN_DIARIO-4EC983?style=flat&logo=chart&logoColor=white" />
-        <img src="https://img.shields.io/badge/PANEL_NEGOCIO-00BCC5?style=flat&logo=grid&logoColor=white" />
-      </div>
-      <br/>
-      <p align="center">
-        Resumen diario (Hoy), memoria del negocio y panel (Negocio) para cerrar el día en segundos.
-      </p>
-    </td>
-  </tr>
-</table>
-
-</div>
-
-<br/>
-
----
-
 ## Arquitectura
 
-<div align="center">
-
-<table>
-  <tr>
-    <td width="10%" align="center"><img src="https://img.shields.io/badge/01-1C8742?style=for-the-badge" /></td>
-    <td width="25%"><b>App Flutter</b></td>
-    <td width="65%">Multiplataforma con servidor conectado: sincroniza catálogo, stock, ventas, entregas, memoria y compra sugerida. Sin servidor funciona offline con datos de ejemplo.</td>
-    <td width="10%"><img src="https://img.shields.io/badge/--1C8742?style=flat&logo=flutter&logoColor=white" /></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="https://img.shields.io/badge/02-00BCC5?style=for-the-badge" /></td>
-    <td><b>API Node.js</b></td>
-    <td><code>node:http</code> + <code>node:sqlite</code> sin dependencias: tienda, carrito, ventas (con deshacer), entregas, productos, resumen, insights, compra sugerida, cierre y eventos.</td>
-    <td><img src="https://img.shields.io/badge/--00BCC5?style=flat&logo=nodedotjs&logoColor=white" /></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="https://img.shields.io/badge/03-E1A035?style=for-the-badge" /></td>
-    <td><b>SQLite local</b></td>
-    <td>Base de datos embebida con seed inicial; los tests usan una DB temporal.</td>
-    <td><img src="https://img.shields.io/badge/--E1A035?style=flat&logo=sqlite&logoColor=black" /></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="https://img.shields.io/badge/04-4EC983?style=for-the-badge" /></td>
-    <td><b>Lumo (IA)</b></td>
-    <td>Asistente conversacional con memoria del negocio: clientes, productos y movimientos.</td>
-    <td><img src="https://img.shields.io/badge/--4EC983?style=flat&logo=sparkles&logoColor=white" /></td>
-  </tr>
-</table>
-
-</div>
+| # | Componente | Descripción |
+|---|---|---|
+| 01 | **App Flutter** | Multiplataforma (Android + web). Con servidor conectado sincroniza catálogo, stock, ventas, entregas, memoria y compra sugerida; sin servidor funciona offline con datos de ejemplo. |
+| 02 | **API Node.js** | `node:http` + `node:sqlite` sin dependencias: tienda, carrito, ventas (con deshacer), entregas, productos, resumen, insights, compra sugerida, cierre y eventos. |
+| 03 | **SQLite local** | Base de datos embebida con datos de ejemplo iniciales; los tests usan una DB temporal. |
+| 04 | **Lumo (IA)** | Asistente conversacional con memoria del negocio: clientes, productos y movimientos. |
 
 <br/>
 
 ---
 
-## Empezar
+## Estructura del proyecto
+
+```text
+carrota/
+├── lib/                          # App Flutter
+│   ├── main.dart                 # Punto de entrada
+│   ├── app/                      # Shell, tema y widgets compartidos
+│   │   ├── app.dart              # CarrotaApp + _Shell (navegación por pestañas)
+│   │   ├── theme.dart            # Paleta, tipografías y ThemeData
+│   │   └── widgets/              # brand, composer, bottom_nav, sheet
+│   ├── core/                     # Estado global y datos
+│   │   ├── store.dart            # LumoStore (chat, ventas, carrito, inventario)
+│   │   ├── api.dart              # Cliente HTTP del backend
+│   │   ├── data.dart             # Datos de ejemplo
+│   │   └── mock_ai.dart          # Intención y parseo de ventas
+│   └── features/                 # Funcionalidad por dominio
+│       ├── onboarding/           # Bienvenida conversacional (etapas, provider, widgets)
+│       ├── home/                 # Inicio (chat con Lumo)
+│       ├── hoy/                  # Resumen diario
+│       ├── tienda/               # Feed estilo TikTok Shop
+│       ├── memoria/              # Memoria del negocio
+│       ├── negocio/              # Panel y cierre
+│       └── sheets/               # Cartas: carrito, cierre, cámara, scanner, voz, etc.
+├── server/                       # API Node.js (cero dependencias)
+│   ├── server.js                 # Servidor + SQLite
+│   └── test/server.test.js
+└── test/                         # Pruebas de la app
+    ├── core_test.dart
+    └── features/onboarding/      # provider + pantalla de bienvenida
+```
+
+<br/>
+
+---
+
+## Requisitos
+
+| Herramienta | Versión |
+|---|---|
+| Flutter | 3.44 (Dart 3.12) |
+| Node.js | 22.5 o superior (para `node:sqlite`) |
+
+<br/>
+
+---
+
+## Puesta en marcha
+
+### 1. Levantar el backend
 
 ```sh
-# backend (Node >= 22.5)
 node server/server.js
+```
 
-# app (en otra terminal)
+Escucha en `http://0.0.0.0:4000` y crea la base `server/data.db` sola con datos de ejemplo. Variables de entorno: `PORT` (por defecto `4000`) y `DB_PATH` (por defecto `./data.db`).
+
+### 2. Correr la app
+
+```sh
 flutter pub get
 flutter run
 ```
 
-La app se conecta por defecto a `http://192.168.1.33:4000`; sobreescribe con `--dart-define=API_URL=http://127.0.0.1:4000`.
+La app se conecta por defecto a `http://192.168.1.33:4000`. Si tu servidor corre en esta máquina, sobreescribí el destino en el arranque:
+
+```sh
+flutter run --dart-define=API_URL=http://127.0.0.1:4000
+```
+
+Si el servidor no responde, la app sigue funcionando offline con datos locales.
 
 <br/>
 
 ---
 
-## Tests
+## Pruebas y calidad
 
 ```sh
-npm test --prefix server   # backend (node --test, DB temporal)
-flutter test               # app
+flutter analyze                       # análisis estático, debe quedar sin avisos
+dart format --output=none --set-exit-if-changed lib test   # formato
+flutter test                          # pruebas de la app
+npm test --prefix server              # backend (node --test, DB temporal)
 ```
 
-> **28 tests** — 20 backend + 8 app.
+> **42 tests** — 21 backend + 21 app.
+
+**Regla práctica:** una tarea no está terminada solo porque la pantalla "se ve bien"; debe pasar formato, análisis, pruebas y una ejecución manual del flujo principal.
+
+<br/>
+
+---
+
+## Onboarding conversacional
+
+La primera vez que abre la app, **Lumo** conversa para conocer tu negocio en un flujo de tres etapas: `businessName → businessType → completed`.
+
+```text
+lib/features/onboarding/
+├── models/
+│   ├── chat_message_model.dart      # MessageType + ChatMessage (la burbuja depende del tipo)
+│   └── onboarding_step.dart         # etapas del flujo
+├── provider/
+│   └── conversation_provider.dart   # máquina de estados + submitAnswer + validación
+├── screens/
+│   └── welcome_screen.dart          # coordina proveedor, scroll y acción final
+└── widgets/
+    ├── onboarding_input.dart        # campo + botón (no conoce el proveedor)
+    ├── chat_bubble.dart             # Lumo a la izquierda, usuario a la derecha
+    └── lumo_header.dart             # cabecera de marca
+```
+
+### Decisiones de diseño
+
+- El estado vive en `ConversationProvider` (`ChangeNotifier`); los widgets solo reciben datos y callbacks, y la pantalla escucha con `ListenableBuilder` — sin dependencias extra.
+- `submitAnswer` descarta respuestas vacías con un mensaje de validación y transita por un `switch` sobre `OnboardingStep`; al completar, el campo se reemplaza por la acción final.
+- La lista de mensajes se entrega como `List.unmodifiable` (no se puede mutar desde afuera); el chat se autodesplaza al último mensaje y el envío funciona con botón y con la tecla `Done` del teclado.
+- Las burbujas se limitan al 76% del ancho de pantalla, adaptándose de 360 a 1024 px.
+
+<br/>
+
+---
+
+## API de Carrota (resumen)
+
+| Grupo | Endpoints principales |
+|---|---|
+| Salud | `GET /api/health` |
+| Tienda | `GET /api/feed` · `POST /api/videos/:id/like` · `POST /api/videos/:id/save` · `GET|POST /api/videos/:id/comments` |
+| Carrito | `GET|POST /api/cart` · `PUT|DELETE /api/cart/:id` · `DELETE /api/cart` |
+| Productos | `GET|POST /api/products` · `GET|PUT /api/products/:id` · `GET /api/products/barcode/:code` · `POST /api/products/:id/stock` |
+| Ventas | `POST|GET /api/sales` · `DELETE /api/sales/:id` (deshacer) |
+| Entregas | `POST /api/deliveries` |
+| Análisis | `GET /api/summary` · `GET /api/insights` · `GET /api/shopping` · `POST /api/closing` · `GET /api/closes` · `GET /api/events` · `GET /api/business` |
+
+Detalle completo en [`server/README.md`](server/README.md).
 
 <br/>
 
@@ -229,38 +237,19 @@ flutter test               # app
 ## Roadmap
 
 ### Hecho
-- [x] App Flutter multiplataforma (web + Android)
+- [x] App Flutter multiplataforma (Android + web)
 - [x] API Node.js sin dependencias con SQLite
+- [x] Onboarding conversacional con máquina de estados y pruebas
 - [x] Feed de productos estilo TikTok Shop
 - [x] Escáner de código de barras y cámara para mercadería
 - [x] Carrito, ventas con deshacer, entregas y cierre
 - [x] Resumen diario, memoria del negocio y panel
 
 ### En desarrollo
-- [~] Instalación en dispositivo Android (Redmi Note 9)
-- [~] Sincronización multi-dispositivo
-- [~] Insights y compra sugerida avanzados
-
-<br/>
-
----
-
-## Estadísticas
-
-<div align="center">
-
-<a href="https://github.com/anuraghazra/github-readme-stats">
-  <img height="180" src="https://github-readme-stats.vercel.app/api?username=gpb-codes&repo=carrota&show_owner=true&show_icons=true&theme=transparent&hide_border=true&icon_color=4EC983&text_color=8B949E&title_color=1C8742&count_private=true" />
-</a>
-<a href="https://github.com/anuraghazra/github-readme-stats">
-  <img height="180" src="https://github-readme-stats.vercel.app/api/top-langs/?username=gpb-codes&layout=compact&theme=transparent&hide_border=true&text_color=8B949E&title_color=00BCC5&langs_count=6" />
-</a>
-
-<br/>
-
-<img src="https://github-readme-streak-stats.herokuapp.com/?user=gpb-codes&theme=transparent&hide_border=true&fire=E1A035&ring=1C8742&currStreakNum=1C8742&sideNums=8B949E&currStreakLabel=00BCC5&sideLabels=8B949E" width="500" />
-
-</div>
+- [ ] Instalación en dispositivo Android (Redmi Note 9)
+- [ ] Sincronización multi-dispositivo
+- [ ] Insights y compra sugerida avanzados
+- [ ] Persistencia local del onboarding (no repetir la bienvenida en cada reinicio)
 
 <br/>
 
@@ -270,37 +259,9 @@ flutter test               # app
 
 <div align="center">
 
-<table>
-  <tr>
-    <td style="background: linear-gradient(135deg, #1C8742 0%, #00BCC5 100%); border-radius: 16px; padding: 24px;">
-      <table>
-        <tr>
-          <td align="center" style="padding: 10px 20px;">
-            <a href="https://github.com/gpb-codes/carrota">
-              <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
-              <br/>
-              <sub style="color: white;">Repos</sub>
-            </a>
-          </td>
-          <td align="center" style="padding: 10px 20px;">
-            <a href="https://github.com/gpb-codes">
-              <img src="https://img.shields.io/badge/Gabriel_Pedreros-151B24?style=for-the-badge&logo=code&logoColor=white" />
-              <br/>
-              <sub style="color: white;">Autor</sub>
-            </a>
-          </td>
-          <td align="center" style="padding: 10px 20px;">
-            <a href="https://img.shields.io/badge/MIT-4EC983?style=for-the-badge">
-              <img src="https://img.shields.io/badge/MIT-4EC983?style=for-the-badge" />
-              <br/>
-              <sub style="color: white;">Licencia</sub>
-            </a>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
+| | | |
+|---|---|---|
+| <a href="https://github.com/gpb-codes/carrota"><img src="https://img.shields.io/badge/Repos-181717?style=for-the-badge&logo=github&logoColor=white" /></a> | <a href="https://github.com/gpb-codes"><img src="https://img.shields.io/badge/Gabriel_Pedreros-151B24?style=for-the-badge&logo=code&logoColor=white" /></a> | <img src="https://img.shields.io/badge/MIT-4EC983?style=for-the-badge" /> |
 
 </div>
 
