@@ -48,12 +48,9 @@ class OnboardingInput extends StatelessWidget {
           const SizedBox(width: 8),
           IconButton(
             onPressed: enabled ? onSubmitted : null,
-            icon: const Icon(Icons.arrow_upward_rounded, size: 20),
-            color: AppColors.primaryForeground,
-            style: IconButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: const CircleBorder(),
-            ),
+            icon: const Icon(AppButtons.sendIcon, size: 20),
+            color: AppButtons.sendForeground,
+            style: AppButtons.primaryCircle,
           ),
         ],
       ),

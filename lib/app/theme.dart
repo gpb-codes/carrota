@@ -61,6 +61,18 @@ class AppText {
   );
 }
 
+/// Estilos de botones compartidos (enviar, acciones principales).
+class AppButtons {
+  static const sendIcon = Icons.arrow_upward_rounded;
+
+  static ButtonStyle get primaryCircle => IconButton.styleFrom(
+    backgroundColor: AppColors.primary,
+    shape: const CircleBorder(),
+  );
+
+  static const sendForeground = AppColors.primaryForeground;
+}
+
 ThemeData buildAppTheme() {
   final scheme =
       ColorScheme.fromSeed(

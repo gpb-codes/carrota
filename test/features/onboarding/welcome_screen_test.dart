@@ -96,4 +96,27 @@ void main() {
 
     expect(find.text('Escribe algo para continuar'), findsNothing);
   });
+
+  testWidgets('las burbujas no desbordan en 360, 600 y 1024 px', (
+    tester,
+  ) async {
+    for (final width in [360, 600, 1024]) {
+      tester.view.physicalSize = Size(width.toDouble(), 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      final provider = ConversationProvider();
+      await tester.pumpWidget(harness(provider));
+      await submit(
+        tester,
+        'Panadería y repostería artesanal con especialidad en pan de masa madre',
+      );
+
+      final bubbleWidth = tester
+          .getSize(find.textContaining('¿A qué se dedica'))
+          .width;
+      expect(bubbleWidth, lessThanOrEqualTo(width * 0.76 + 1));
+      expect(tester.takeException(), isNull);
+    }
+  });
 }

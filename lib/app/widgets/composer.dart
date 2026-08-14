@@ -108,12 +108,9 @@ class _ComposerState extends State<Composer> {
             _canSend
                 ? IconButton(
                     onPressed: _send,
-                    icon: const Icon(Icons.arrow_upward_rounded, size: 20),
-                    color: AppColors.primaryForeground,
-                    style: IconButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: const CircleBorder(),
-                    ),
+                    icon: const Icon(AppButtons.sendIcon, size: 20),
+                    color: AppButtons.sendForeground,
+                    style: AppButtons.primaryCircle,
                   )
                 : IconButton(
                     onPressed: widget.onVoice,

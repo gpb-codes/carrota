@@ -24,9 +24,13 @@ class LumoHeader extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          const Text(
-            'Conociendo tu negocio',
-            style: TextStyle(fontSize: 12, color: AppColors.mutedForeground),
+          const Flexible(
+            child: Text(
+              'Conociendo tu negocio',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 12, color: AppColors.mutedForeground),
+            ),
           ),
         ],
       ),
