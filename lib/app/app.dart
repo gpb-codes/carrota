@@ -9,8 +9,6 @@ import '../features/home/home_screen.dart';
 import '../features/hoy/hoy_screen.dart';
 import '../features/memoria/memoria_screen.dart';
 import '../features/negocio/negocio_screen.dart';
-import '../features/onboarding/provider/conversation_provider.dart';
-import '../features/onboarding/screens/welcome_screen.dart';
 import '../features/sheets/camera_sheet.dart';
 import '../features/sheets/closing_sheet.dart';
 import '../features/sheets/product_sheet.dart';
@@ -18,23 +16,30 @@ import '../features/sheets/scan_sheet.dart';
 import '../features/sheets/shopping_sheet.dart';
 import '../features/sheets/voice_sheet.dart';
 import '../features/tienda/tienda_screen.dart';
+import 'router.dart';
 import 'theme.dart';
 import 'widgets/bottom_nav.dart';
 import 'widgets/composer.dart';
 import 'widgets/sheet.dart';
 
 class CarrotaApp extends StatelessWidget {
-  const CarrotaApp({super.key});
+  /// Ruta inicial: `/` si ya se completó el onboarding, `/onboarding` si no.
+  final String initialLocation;
+
+  const CarrotaApp({super.key, required this.initialLocation});
 
   @override
   Widget build(BuildContext context) {
     return LumoScope(
       store: LumoStore(),
-      child: MaterialApp(
+      child: MaterialApp.router(
         title: 'Lumo · Carrota',
         debugShowCheckedModeBanner: false,
         theme: buildAppTheme(),
-        home: const _Shell(),
+        routerConfig: AppRouter.create(
+          initialLocation: initialLocation,
+          shellBuilder: (_) => const _Shell(),
+        ),
       ),
     );
   }
@@ -49,7 +54,6 @@ class _Shell extends StatefulWidget {
 
 class _ShellState extends State<_Shell> {
   AppTab _tab = AppTab.inicio;
-  final _conversation = ConversationProvider();
 
   @override
   void initState() {
@@ -57,12 +61,6 @@ class _ShellState extends State<_Shell> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       LumoScope.of(context).loadRemote();
     });
-  }
-
-  @override
-  void dispose() {
-    _conversation.dispose();
-    super.dispose();
   }
 
   String _now() {
@@ -396,7 +394,6 @@ class _ShellState extends State<_Shell> {
 
   @override
   Widget build(BuildContext context) {
-    final store = LumoScope.of(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -444,13 +441,6 @@ class _ShellState extends State<_Shell> {
               ),
             ],
           ),
-          if (!store.onboarded)
-            Positioned.fill(
-              child: WelcomeScreen(
-                provider: _conversation,
-                onDone: () => store.setOnboarded(true),
-              ),
-            ),
         ],
       ),
     );
