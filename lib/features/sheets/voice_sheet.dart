@@ -149,7 +149,7 @@ class _VoiceSheetState extends State<VoiceSheet> {
                 children: [
                   TextSpan(
                     text: _t.isEmpty ? 'Escuchando…' : _t,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       height: 1.5,
                       color: AppColors.foreground,
@@ -172,7 +172,7 @@ class _VoiceSheetState extends State<VoiceSheet> {
                     lines.length == 1
                         ? 'Entendí este producto'
                         : 'Entendí esta venta',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppColors.foreground,
@@ -196,7 +196,7 @@ class _VoiceSheetState extends State<VoiceSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Total',
                   style: TextStyle(
                     fontSize: 14,
@@ -205,7 +205,7 @@ class _VoiceSheetState extends State<VoiceSheet> {
                 ),
                 Text(
                   mxn(total),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: AppColors.foreground,
@@ -213,7 +213,7 @@ class _VoiceSheetState extends State<VoiceSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
@@ -236,12 +236,12 @@ class _VoiceSheetState extends State<VoiceSheet> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 OutlinedButton(
                   onPressed: _retry,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.foreground,
-                    side: const BorderSide(color: AppColors.hairline),
+                    side: BorderSide(color: AppColors.hairline),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 13,
@@ -379,7 +379,7 @@ class _VoiceLine extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: showDivider
-          ? const BoxDecoration(
+          ? BoxDecoration(
               border: Border(top: BorderSide(color: AppColors.hairline)),
             )
           : null,
@@ -393,7 +393,7 @@ class _VoiceLine extends StatelessWidget {
               children: [
                 Text(
                   p?.name ?? line.productId,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: AppColors.foreground,
@@ -401,7 +401,7 @@ class _VoiceLine extends StatelessWidget {
                 ),
                 Text(
                   '${line.qty} ${p?.unit ?? ''}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppColors.mutedForeground,
                   ),
@@ -411,7 +411,7 @@ class _VoiceLine extends StatelessWidget {
           ),
           Text(
             p == null ? '' : mxn(p.price * line.qty),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.foreground,

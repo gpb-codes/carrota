@@ -21,7 +21,7 @@ class ShoppingSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 4),
-          const Row(
+          Row(
             children: [
               LumoMark(size: 22),
               SizedBox(width: 8),
@@ -43,9 +43,7 @@ class ShoppingSheet extends StatelessWidget {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       border: i > 0
-                          ? const Border(
-                              top: BorderSide(color: AppColors.hairline),
-                            )
+                          ? Border(top: BorderSide(color: AppColors.hairline))
                           : null,
                     ),
                     child: Row(
@@ -62,7 +60,7 @@ class ShoppingSheet extends StatelessWidget {
                             children: [
                               Text(
                                 _items[i].$2,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   color: AppColors.foreground,
@@ -70,7 +68,7 @@ class ShoppingSheet extends StatelessWidget {
                               ),
                               Text(
                                 _items[i].$4,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
                                   color: AppColors.mutedForeground,
                                 ),
@@ -80,7 +78,7 @@ class ShoppingSheet extends StatelessWidget {
                         ),
                         Text(
                           _items[i].$3,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: AppColors.foreground,
@@ -92,7 +90,7 @@ class ShoppingSheet extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -112,12 +110,12 @@ class ShoppingSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               OutlinedButton(
                 onPressed: () {},
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.foreground,
-                  side: const BorderSide(color: AppColors.hairline),
+                  side: BorderSide(color: AppColors.hairline),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 13,
@@ -128,12 +126,12 @@ class ShoppingSheet extends StatelessWidget {
                 ),
                 child: const Text('WhatsApp', style: TextStyle(fontSize: 14)),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).pop(),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.foreground,
-                  side: const BorderSide(color: AppColors.hairline),
+                  side: BorderSide(color: AppColors.hairline),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 13,

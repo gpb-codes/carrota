@@ -42,7 +42,7 @@ class _LumoBubble extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(top: 2, right: 8),
           child: LumoMark(size: 22),
         ),
@@ -56,7 +56,7 @@ class _LumoBubble extends StatelessWidget {
             ),
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 height: 1.5,
                 color: AppColors.foreground,
@@ -89,7 +89,7 @@ class _UserBubble extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 15,
           height: 1.5,
           color: AppColors.primaryForeground,

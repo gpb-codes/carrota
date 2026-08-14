@@ -36,7 +36,7 @@ class _AppSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Center(
               child: Container(
                 width: 40,
@@ -54,7 +54,7 @@ class _AppSheet extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: AppColors.foreground,
@@ -63,7 +63,7 @@ class _AppSheet extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, size: 20),
+                    icon: Icon(Icons.close, size: 20),
                     color: AppColors.mutedForeground,
                     visualDensity: VisualDensity.compact,
                   ),

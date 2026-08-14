@@ -7,16 +7,190 @@ import '../sheets/cart_sheet.dart';
 import '../sheets/comments_sheet.dart';
 import '../sheets/share_sheet.dart';
 
-class TiendaScreen extends StatelessWidget {
+class TiendaScreen extends StatefulWidget {
   const TiendaScreen({super.key});
 
   @override
+  State<TiendaScreen> createState() => _TiendaScreenState();
+}
+
+class _TiendaScreenState extends State<TiendaScreen> {
+  final _searchController = TextEditingController();
+  String _query = '';
+  int _page = 0;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<VideoProduct> _filtered(LumoStore store) {
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return videoFeed;
+    return [
+      for (final v in videoFeed)
+        if (_matches(v, store, q)) v,
+    ];
+  }
+
+  bool _matches(VideoProduct v, LumoStore store, String q) {
+    if (v.caption.toLowerCase().contains(q)) return true;
+    if (v.hashtags.any((t) => t.toLowerCase().contains(q))) return true;
+    final name = store.productById(v.productId)?.name.toLowerCase() ?? '';
+    return name.contains(q);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return PageView.builder(
-      scrollDirection: Axis.vertical,
-      itemCount: videoFeed.length,
-      itemBuilder: (context, index) =>
-          _VideoPage(video: videoFeed[index], index: index),
+    final store = LumoScope.of(context);
+    final items = _filtered(store);
+    return Column(
+      children: [
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _SearchField(
+                    controller: _searchController,
+                    onChanged: (v) => setState(() => _query = v),
+                  ),
+                ),
+                if (items.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      '${_page + 1} / ${items.length}',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(width: 8),
+                Badge(
+                  isLabelVisible: store.cartCount > 0,
+                  label: Text('${store.cartCount}'),
+                  child: IconButton(
+                    onPressed: () => showCartSheet(context),
+                    icon: const Icon(
+                      Icons.shopping_cart_rounded,
+                      color: Colors.white,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.black.withValues(alpha: 0.25),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          child: items.isEmpty
+              ? _EmptySearch(query: _query)
+              : PageView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: items.length,
+                  onPageChanged: (i) => setState(() => _page = i),
+                  itemBuilder: (context, index) =>
+                      _VideoPage(video: items[index], index: index),
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SearchField extends StatelessWidget {
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+
+  const _SearchField({required this.controller, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 42,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: TextField(
+        controller: controller,
+        onChanged: onChanged,
+        style: const TextStyle(color: Colors.white, fontSize: 14),
+        cursorColor: Colors.white,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: 'Buscar en la tienda…',
+          hintStyle: TextStyle(
+            color: Colors.white.withValues(alpha: 0.6),
+            fontSize: 14,
+          ),
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            size: 20,
+            color: Colors.white70,
+          ),
+          border: InputBorder.none,
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptySearch extends StatelessWidget {
+  final String query;
+
+  const _EmptySearch({required this.query});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.search_off_rounded,
+              size: 44,
+              color: AppColors.mutedForeground,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Sin resultados para "$query"',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.foreground,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Prueba con otro nombre, etiqueta o descripción.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: AppColors.mutedForeground),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -216,67 +390,6 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.25),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: const Text(
-                        'Tienda',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.25),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        '${widget.index + 1} / ${videoFeed.length}',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    Badge(
-                      isLabelVisible: store.cartCount > 0,
-                      label: Text('${store.cartCount}'),
-                      child: IconButton(
-                        onPressed: () => showCartSheet(context),
-                        icon: const Icon(
-                          Icons.shopping_cart_rounded,
-                          color: Colors.white,
-                        ),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.black.withValues(alpha: 0.25),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
             Positioned(
               left: 0,
               right: 0,
@@ -388,7 +501,7 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
                             SizedBox(
                               height: 46,
                               child: FilledButton.icon(

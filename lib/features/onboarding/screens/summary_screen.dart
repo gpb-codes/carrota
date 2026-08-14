@@ -25,8 +25,8 @@ class SummaryScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 16, 20, 12),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
               child: Row(
                 children: [
                   LumoMark(size: 26),
@@ -49,7 +49,7 @@ class SummaryScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   const Center(child: LumoMark(size: 64)),
                   const SizedBox(height: 20),
-                  const Text(
+                  Text(
                     'Ya conozco tu negocio',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -59,7 +59,7 @@ class SummaryScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Esto es lo que aprendí en la conversación. '
                     'Podrás cambiarlo en cualquier momento.',
                     textAlign: TextAlign.center,
@@ -80,7 +80,7 @@ class SummaryScreen extends StatelessWidget {
                           value: businessName,
                           icon: Icons.storefront_rounded,
                         ),
-                        const Divider(height: 24, color: AppColors.hairline),
+                        Divider(height: 24, color: AppColors.hairline),
                         _SummaryRow(
                           label: 'Actividad',
                           value: businessType,
@@ -164,7 +164,7 @@ class _SummaryRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   color: AppColors.mutedForeground,
                 ),
@@ -172,7 +172,7 @@ class _SummaryRow extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: AppColors.foreground,

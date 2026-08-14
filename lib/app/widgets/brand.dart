@@ -69,7 +69,7 @@ class _LumoMarkState extends State<LumoMark>
               child: Container(
                 width: s - 6,
                 height: s - 6,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.surface,
                 ),

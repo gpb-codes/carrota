@@ -69,7 +69,7 @@ class ChatBubble extends StatelessWidget {
             ],
           ),
           child: DefaultTextStyle.merge(
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.primaryForeground,
               fontSize: 15,
               height: 1.5,
@@ -88,7 +88,7 @@ class ChatBubble extends StatelessWidget {
         ),
         Flexible(
           child: DefaultTextStyle.merge(
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.foreground,
               fontSize: 15,
               height: 1.5,
@@ -196,7 +196,7 @@ Widget _headerRow({required TagChip chip, required String title}) => Row(
     Expanded(
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppColors.foreground,
@@ -242,7 +242,7 @@ class _SaleProposalCard extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Total',
                     style: TextStyle(
@@ -253,7 +253,7 @@ class _SaleProposalCard extends StatelessWidget {
                 ),
                 Text(
                   mxn(sale.total),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: AppColors.foreground,
@@ -269,16 +269,13 @@ class _SaleProposalCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     _payLabel(sale.payment!),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.foreground,
-                    ),
+                    style: TextStyle(fontSize: 14, color: AppColors.foreground),
                   ),
                   if (sale.authCode != null) ...[
                     const SizedBox(width: 8),
                     Text(
                       '· Autorización ${sale.authCode}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         color: AppColors.mutedForeground,
                       ),
@@ -289,7 +286,7 @@ class _SaleProposalCard extends StatelessWidget {
             ],
             if (m.awaitingPayment ?? false) ...[
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 '¿Cómo pagó?',
                 style: TextStyle(
                   color: AppColors.mutedForeground,
@@ -332,7 +329,7 @@ class _SaleProposalCard extends StatelessWidget {
                     ),
                     child: const Text('Ver detalle'),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   TextButton.icon(
                     onPressed: () => onUndo(m.id),
                     style: TextButton.styleFrom(
@@ -376,7 +373,7 @@ class _SaleLineRow extends StatelessWidget {
               children: [
                 Text(
                   p.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: AppColors.foreground,
@@ -385,7 +382,7 @@ class _SaleLineRow extends StatelessWidget {
                 ),
                 Text(
                   '${line.qty} × ${p.unit} · ${mxn(p.price)} c/u',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppColors.mutedForeground,
                   ),
@@ -395,7 +392,7 @@ class _SaleLineRow extends StatelessWidget {
           ),
           Text(
             mxn(p.price * line.qty),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.foreground,
@@ -443,7 +440,7 @@ class _ReceiptCard extends StatelessWidget {
                         children: [
                           Text(
                             store.productById(l.productId)?.name ?? l.productId,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               color: AppColors.foreground,
@@ -451,7 +448,7 @@ class _ReceiptCard extends StatelessWidget {
                           ),
                           Text(
                             '${l.qty} ${store.productById(l.productId)?.unit ?? ''}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               color: AppColors.mutedForeground,
                             ),
@@ -464,7 +461,7 @@ class _ReceiptCard extends StatelessWidget {
               ),
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Total',
                     style: TextStyle(
@@ -475,7 +472,7 @@ class _ReceiptCard extends StatelessWidget {
                 ),
                 Text(
                   mxn(m.total ?? 0),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: AppColors.foreground,
@@ -564,10 +561,7 @@ class _InsightCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               m.reason ?? '',
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.mutedForeground,
-              ),
+              style: TextStyle(fontSize: 14, color: AppColors.mutedForeground),
             ),
             const SizedBox(height: 10),
             Container(
@@ -586,7 +580,7 @@ class _InsightCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     m.recommendation ?? '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppColors.foreground,
@@ -650,15 +644,12 @@ class _InsightMetric extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColors.mutedForeground,
-            ),
+            style: TextStyle(fontSize: 11, color: AppColors.mutedForeground),
           ),
           const SizedBox(height: 2),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: AppColors.foreground,
@@ -690,7 +681,7 @@ class _ImpactCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     m.text ?? '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppColors.foreground,
@@ -722,7 +713,7 @@ class _ImpactCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: AppColors.foreground,
                         ),
@@ -821,7 +812,7 @@ Widget _pillButton({required String label, required VoidCallback onTap}) {
     onPressed: onTap,
     style: OutlinedButton.styleFrom(
       foregroundColor: AppColors.foreground,
-      side: const BorderSide(color: AppColors.hairline),
+      side: BorderSide(color: AppColors.hairline),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
     ),

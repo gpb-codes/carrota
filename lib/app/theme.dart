@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
 
 /// Palette ported from the web prototype (oklch values converted to sRGB hex).
+/// Los neutros se resuelven según [isDark] para que el mismo código
+/// funcione en modo claro y oscuro; los acentos son fijos.
 class AppColors {
-  static const background = Color(0xFFFCFAF4);
-  static const surface = Color(0xFFFEFDFA);
-  static const surface2 = Color(0xFFF6F3EC);
-  static const foreground = Color(0xFF151B24);
-  static const muted = Color(0xFFEEEBE4);
-  static const mutedForeground = Color(0xFF5D646F);
-  static const border = Color(0xFFE1DED5);
-  static const hairline = Color(0xB3E1DED5); // border @ 70%
+  static bool isDark = false;
+
+  static Color get background =>
+      isDark ? const Color(0xFF12161D) : const Color(0xFFFCFAF4);
+  static Color get surface =>
+      isDark ? const Color(0xFF1A2029) : const Color(0xFFFEFDFA);
+  static Color get surface2 =>
+      isDark ? const Color(0xFF242B36) : const Color(0xFFF6F3EC);
+  static Color get foreground =>
+      isDark ? const Color(0xFFEDF1F6) : const Color(0xFF151B24);
+  static Color get muted =>
+      isDark ? const Color(0xFF2A3240) : const Color(0xFFEEEBE4);
+  static Color get mutedForeground =>
+      isDark ? const Color(0xFF9AA3B2) : const Color(0xFF5D646F);
+  static Color get border =>
+      isDark ? const Color(0xFF2F3744) : const Color(0xFFE1DED5);
+  static Color get hairline => isDark
+      ? const Color(0x4D2F3744)
+      : const Color(0xB3E1DED5); // border @ 30% / 70%
   static const primary = Color(0xFF1C8742);
   static const primaryForeground = Color(0xFFFDFCF8);
   static const primarySoft = Color(0xFFD5F5DA);
@@ -77,7 +90,7 @@ ThemeData buildAppTheme() {
   final scheme =
       ColorScheme.fromSeed(
         seedColor: AppColors.primary,
-        brightness: Brightness.light,
+        brightness: AppColors.isDark ? Brightness.dark : Brightness.light,
       ).copyWith(
         primary: AppColors.primary,
         onPrimary: AppColors.primaryForeground,
@@ -94,17 +107,17 @@ ThemeData buildAppTheme() {
     scaffoldBackgroundColor: AppColors.background,
     splashFactory: InkSparkle.splashFactory,
     textTheme: base.textTheme.copyWith(
-      bodyLarge: const TextStyle(
+      bodyLarge: TextStyle(
         color: AppColors.foreground,
         fontSize: 15,
         height: 1.5,
       ),
-      bodyMedium: const TextStyle(
+      bodyMedium: TextStyle(
         color: AppColors.foreground,
         fontSize: 14,
         height: 1.4,
       ),
-      titleLarge: const TextStyle(
+      titleLarge: TextStyle(
         color: AppColors.foreground,
         fontWeight: FontWeight.w600,
       ),
@@ -112,25 +125,22 @@ ThemeData buildAppTheme() {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: AppColors.surface,
-      hintStyle: const TextStyle(
-        color: AppColors.mutedForeground,
-        fontSize: 15,
-      ),
+      hintStyle: TextStyle(color: AppColors.mutedForeground, fontSize: 15),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.hairline),
+        borderSide: BorderSide(color: AppColors.hairline),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.hairline),
+        borderSide: BorderSide(color: AppColors.hairline),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppColors.primary),
       ),
     ),
-    bottomSheetTheme: const BottomSheetThemeData(
+    bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: AppColors.surface,
       surfaceTintColor: Colors.transparent,
       showDragHandle: false,

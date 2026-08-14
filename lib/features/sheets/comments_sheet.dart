@@ -66,7 +66,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Center(
               child: Container(
                 width: 40,
@@ -81,7 +81,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Row(
                 children: [
-                  const Text(
+                  Text(
                     'Comentarios',
                     style: TextStyle(
                       fontSize: 15,
@@ -89,7 +89,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
                       color: AppColors.foreground,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -101,7 +101,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
                     ),
                     child: Text(
                       '${comments.length}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         color: AppColors.mutedForeground,
@@ -111,7 +111,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
                   const Spacer(),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, size: 20),
+                    icon: Icon(Icons.close, size: 20),
                     color: AppColors.mutedForeground,
                     visualDensity: VisualDensity.compact,
                   ),
@@ -120,7 +120,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
             ),
             Expanded(
               child: comments.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -146,7 +146,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
             ),
             Container(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 border: Border(top: BorderSide(color: AppColors.hairline)),
               ),
               child: Row(
@@ -164,7 +164,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
                   const SizedBox(width: 8),
                   IconButton.filled(
                     onPressed: _send,
-                    icon: const Icon(Icons.send_rounded, size: 18),
+                    icon: Icon(Icons.send_rounded, size: 18),
                     style: IconButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: AppColors.primaryForeground,
@@ -213,7 +213,7 @@ class _CommentRow extends StatelessWidget {
                   children: [
                     Text(
                       c.author,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: AppColors.foreground,
@@ -222,7 +222,7 @@ class _CommentRow extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text(
                       c.ago,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: AppColors.mutedForeground,
                       ),
@@ -232,7 +232,7 @@ class _CommentRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   c.text,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     height: 1.4,
                     color: AppColors.foreground,
