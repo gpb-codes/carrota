@@ -5,9 +5,12 @@ import 'package:carrota_flutter/features/onboarding/models/onboarding_step.dart'
 import 'package:carrota_flutter/features/onboarding/provider/conversation_provider.dart';
 import 'package:carrota_flutter/features/onboarding/screens/welcome_screen.dart';
 
-Widget harness(ConversationProvider provider, {VoidCallback? onDone}) {
+Widget harness(ConversationProvider provider, {VoidCallback? onShowSummary}) {
   return MaterialApp(
-    home: WelcomeScreen(provider: provider, onDone: onDone ?? () {}),
+    home: WelcomeScreen(
+      provider: provider,
+      onShowSummary: onShowSummary ?? () {},
+    ),
   );
 }
 
@@ -64,23 +67,25 @@ void main() {
     },
   );
 
-  testWidgets('al completar el onboarding se ofrece la acción final', (
+  testWidgets('al completar el onboarding se ofrece ver el resumen', (
     tester,
   ) async {
-    var done = false;
+    var showSummary = false;
     final provider = ConversationProvider();
-    await tester.pumpWidget(harness(provider, onDone: () => done = true));
+    await tester.pumpWidget(
+      harness(provider, onShowSummary: () => showSummary = true),
+    );
 
     await submit(tester, 'Panadería Sol');
     await submit(tester, 'Venta de pan artesanal');
 
-    expect(find.text('Empezar a hablar con Carrota'), findsOneWidget);
+    expect(find.text('Ver mi resumen'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
 
-    await tester.tap(find.text('Empezar a hablar con Carrota'));
+    await tester.tap(find.text('Ver mi resumen'));
     await tester.pump();
 
-    expect(done, isTrue);
+    expect(showSummary, isTrue);
   });
 
   testWidgets('el error se limpia al volver a escribir', (tester) async {

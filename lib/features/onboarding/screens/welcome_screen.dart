@@ -15,12 +15,14 @@ import '../widgets/onboarding_input.dart';
 /// y al completar el flujo se ofrece una acción final.
 class WelcomeScreen extends StatefulWidget {
   final ConversationProvider provider;
-  final VoidCallback onDone;
+
+  /// Se llama cuando la persona pide ver el resumen tras completar.
+  final VoidCallback onShowSummary;
 
   const WelcomeScreen({
     super.key,
     required this.provider,
-    required this.onDone,
+    required this.onShowSummary,
   });
 
   @override
@@ -93,13 +95,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: widget.onDone,
+                          onTap: widget.onShowSummary,
                           borderRadius: BorderRadius.circular(16),
                           child: const Padding(
                             padding: EdgeInsets.symmetric(vertical: 14),
                             child: Center(
                               child: Text(
-                                'Empezar a hablar con Carrota',
+                                'Ver mi resumen',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
