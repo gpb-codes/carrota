@@ -38,7 +38,7 @@ class OnboardingInput extends StatelessWidget {
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => onSubmitted(),
               onChanged: onChanged,
-              style: const TextStyle(color: AppColors.foreground, fontSize: 15),
+              style: TextStyle(color: AppColors.foreground, fontSize: 15),
               decoration: InputDecoration(
                 hintText: hintText,
                 errorText: errorText,

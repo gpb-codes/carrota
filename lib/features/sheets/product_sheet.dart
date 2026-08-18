@@ -55,7 +55,7 @@ class ProductSheet extends StatelessWidget {
                   children: [
                     Text(
                       p.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: AppColors.foreground,
@@ -63,7 +63,7 @@ class ProductSheet extends StatelessWidget {
                     ),
                     Text(
                       'Proveedor · ${p.supplier ?? '—'}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         color: AppColors.mutedForeground,
                       ),
@@ -73,7 +73,7 @@ class ProductSheet extends StatelessWidget {
               ),
               Text(
                 mxn(p.price),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
                   color: AppColors.foreground,
@@ -108,7 +108,7 @@ class ProductSheet extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(14),
             decoration: cardDeco(radius: 18),
@@ -157,7 +157,7 @@ class ProductSheet extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
                     TagChip('Resumen', tone: TagTone.ai),
                     SizedBox(width: 8),
@@ -172,7 +172,7 @@ class ProductSheet extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Las ventas aumentaron desde que comenzó la promoción de ensaladas. Al ritmo actual, el producto podría agotarse mañana antes de las 2 PM.',
                   style: TextStyle(
                     fontSize: 15,
@@ -183,7 +183,7 @@ class ProductSheet extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -198,7 +198,7 @@ class ProductSheet extends StatelessWidget {
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.foreground,
-                    side: const BorderSide(color: AppColors.hairline),
+                    side: BorderSide(color: AppColors.hairline),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,

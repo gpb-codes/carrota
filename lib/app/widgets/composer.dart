@@ -70,12 +70,12 @@ class _ComposerState extends State<Composer> {
           children: [
             IconButton(
               onPressed: widget.onScan,
-              icon: const Icon(Icons.qr_code_scanner_rounded, size: 22),
+              icon: Icon(Icons.qr_code_scanner_rounded, size: 22),
               color: AppColors.mutedForeground,
             ),
             IconButton(
               onPressed: widget.onCamera,
-              icon: const Icon(Icons.camera_alt_outlined, size: 22),
+              icon: Icon(Icons.camera_alt_outlined, size: 22),
               color: AppColors.mutedForeground,
             ),
             Expanded(
@@ -85,7 +85,7 @@ class _ComposerState extends State<Composer> {
                 maxLines: 4,
                 keyboardType: TextInputType.multiline,
                 textInputAction: TextInputAction.newline,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.foreground,
                   fontSize: 15,
                   height: 1.5,
@@ -114,7 +114,7 @@ class _ComposerState extends State<Composer> {
                   )
                 : IconButton(
                     onPressed: widget.onVoice,
-                    icon: const Icon(Icons.mic_none, size: 22),
+                    icon: Icon(Icons.mic_none, size: 22),
                     color: AppColors.mutedForeground,
                   ),
           ],

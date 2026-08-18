@@ -54,7 +54,7 @@ class _MemoriaScreenState extends State<MemoriaScreen> {
           ),
           const SizedBox(height: 4),
           Text.rich(
-            const TextSpan(
+            TextSpan(
               children: [
                 TextSpan(
                   text: 'Lo que Lumo recuerda de ',
@@ -79,7 +79,7 @@ class _MemoriaScreenState extends State<MemoriaScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Container(
             decoration: cardDeco(radius: 16, color: AppColors.surface),
             child: Row(
@@ -126,7 +126,7 @@ class _MemoriaScreenState extends State<MemoriaScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.mutedForeground,
                         backgroundColor: AppColors.surface,
-                        side: const BorderSide(color: AppColors.hairline),
+                        side: BorderSide(color: AppColors.hairline),
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(999),
@@ -138,7 +138,7 @@ class _MemoriaScreenState extends State<MemoriaScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           for (final entry in groups.entries) ...[
             Text(
               entry.key.toUpperCase(),
@@ -219,7 +219,7 @@ class _MemoryCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 event.when,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   color: AppColors.mutedForeground,
                 ),
@@ -229,7 +229,7 @@ class _MemoryCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             event.title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               height: 1.5,
               color: AppColors.foreground,
@@ -239,10 +239,7 @@ class _MemoryCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               event.detail!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.mutedForeground,
-              ),
+              style: TextStyle(fontSize: 14, color: AppColors.mutedForeground),
             ),
           ],
           const SizedBox(height: 10),
@@ -292,7 +289,7 @@ class _TimelineRow extends StatelessWidget {
               Container(
                 width: 8,
                 height: 8,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.primary,
                 ),
@@ -312,7 +309,7 @@ class _TimelineRow extends StatelessWidget {
                     children: [
                       Text(
                         t.time,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: AppColors.mutedForeground,
                         ),
@@ -326,7 +323,7 @@ class _TimelineRow extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     t.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       height: 1.4,
                       color: AppColors.foreground,
@@ -335,7 +332,7 @@ class _TimelineRow extends StatelessWidget {
                   if (t.detail != null)
                     Text(
                       t.detail!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         color: AppColors.mutedForeground,
                       ),

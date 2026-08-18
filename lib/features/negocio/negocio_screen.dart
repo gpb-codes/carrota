@@ -7,11 +7,15 @@ import '../../core/store.dart';
 class NegocioScreen extends StatelessWidget {
   final void Function(String id) onOpenProduct;
   final VoidCallback onOpenShopping;
+  final bool darkMode;
+  final ValueChanged<bool> onToggleTheme;
 
   const NegocioScreen({
     super.key,
     required this.onOpenProduct,
     required this.onOpenShopping,
+    required this.darkMode,
+    required this.onToggleTheme,
   });
 
   @override
@@ -32,7 +36,7 @@ class NegocioScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Carrota',
             style: TextStyle(
               fontSize: 24,
@@ -40,7 +44,7 @@ class NegocioScreen extends StatelessWidget {
               color: AppColors.foreground,
             ),
           ),
-          const Text(
+          Text(
             'Huerto urbano y sostenible',
             style: TextStyle(fontSize: 14, color: AppColors.mutedForeground),
           ),
@@ -145,6 +149,14 @@ class NegocioScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
+          _MiniLabel('Apariencia'),
+          const SizedBox(height: 8),
+          Container(
+            decoration: cardDeco(radius: 20),
+            clipBehavior: Clip.antiAlias,
+            child: _ThemeRow(darkMode: darkMode, onChanged: onToggleTheme),
+          ),
+          const SizedBox(height: 20),
           _MiniLabel('Ajustes'),
           const SizedBox(height: 8),
           Container(
@@ -220,7 +232,7 @@ class _InfoRow extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: AppColors.foreground,
@@ -251,7 +263,7 @@ class _ProductRow extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           border: showDivider
-              ? const Border(top: BorderSide(color: AppColors.hairline))
+              ? Border(top: BorderSide(color: AppColors.hairline))
               : null,
         ),
         child: Row(
@@ -264,7 +276,7 @@ class _ProductRow extends StatelessWidget {
                 children: [
                   Text(
                     product.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppColors.foreground,
@@ -273,7 +285,7 @@ class _ProductRow extends StatelessWidget {
                   ),
                   Text(
                     '${product.stock} ${product.unit}${low ? ' · atención' : ''}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.mutedForeground,
                     ),
@@ -283,17 +295,14 @@ class _ProductRow extends StatelessWidget {
             ),
             Text(
               mxn(product.price),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: AppColors.foreground,
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: AppColors.mutedForeground,
-            ),
+            Icon(Icons.chevron_right_rounded, color: AppColors.mutedForeground),
           ],
         ),
       ),
@@ -325,7 +334,7 @@ class _ToggleRowState extends State<_ToggleRow> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         border: widget.showDivider
-            ? const Border(top: BorderSide(color: AppColors.hairline))
+            ? Border(top: BorderSide(color: AppColors.hairline))
             : null,
       ),
       child: Row(
@@ -333,12 +342,65 @@ class _ToggleRowState extends State<_ToggleRow> {
           Expanded(
             child: Text(
               widget.label,
-              style: const TextStyle(fontSize: 14, color: AppColors.foreground),
+              style: TextStyle(fontSize: 14, color: AppColors.foreground),
             ),
           ),
           Switch(
             value: _on,
             onChanged: (v) => setState(() => _on = v),
+            activeTrackColor: AppColors.primary,
+            activeThumbColor: Colors.white,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ThemeRow extends StatelessWidget {
+  final bool darkMode;
+  final ValueChanged<bool> onChanged;
+
+  const _ThemeRow({required this.darkMode, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      child: Row(
+        children: [
+          Icon(
+            darkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+            size: 20,
+            color: AppColors.mutedForeground,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Modo oscuro',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.foreground,
+                  ),
+                ),
+                Text(
+                  'Interfaz cómoda de noche',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.mutedForeground.withValues(alpha: 0.9),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            key: const ValueKey('theme-switch'),
+            value: darkMode,
+            onChanged: onChanged,
             activeTrackColor: AppColors.primary,
             activeThumbColor: Colors.white,
           ),
@@ -360,7 +422,7 @@ class _SettingsRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
         border: showDivider
-            ? const Border(top: BorderSide(color: AppColors.hairline))
+            ? Border(top: BorderSide(color: AppColors.hairline))
             : null,
       ),
       child: Row(
@@ -368,13 +430,10 @@ class _SettingsRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(fontSize: 14, color: AppColors.foreground),
+              style: TextStyle(fontSize: 14, color: AppColors.foreground),
             ),
           ),
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: AppColors.mutedForeground,
-          ),
+          Icon(Icons.chevron_right_rounded, color: AppColors.mutedForeground),
         ],
       ),
     );

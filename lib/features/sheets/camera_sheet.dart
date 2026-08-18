@@ -193,10 +193,10 @@ class _CameraSheetState extends State<CameraSheet> {
                 setState(() => _shot = null);
               },
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Volver a tomar'),
+              label: Text('Volver a tomar'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.foreground,
-                side: const BorderSide(color: AppColors.hairline),
+                side: BorderSide(color: AppColors.hairline),
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -214,7 +214,7 @@ class _CameraSheetState extends State<CameraSheet> {
                       Navigator.of(context).pop();
                     },
               icon: const Icon(Icons.check_rounded, size: 18),
-              label: const Text('Agregar al inventario'),
+              label: Text('Agregar al inventario'),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.primaryForeground,
@@ -246,7 +246,7 @@ class _CameraSheetState extends State<CameraSheet> {
   Widget _buildResult() {
     return Column(
       children: [
-        const Row(
+        Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             LumoMark(size: 22),
@@ -301,7 +301,7 @@ class _CameraSheetState extends State<CameraSheet> {
         const SizedBox(height: 12),
         Container(
           decoration: cardDeco(radius: 18),
-          child: const Column(
+          child: Column(
             children: [
               _ReceiptLine(
                 emoji: '🍅',
@@ -345,7 +345,7 @@ class _CameraSheetState extends State<CameraSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: AspectRatio(
@@ -419,12 +419,12 @@ class _CameraSheetState extends State<CameraSheet> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 OutlinedButton(
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.foreground,
-                    side: const BorderSide(color: AppColors.hairline),
+                    side: BorderSide(color: AppColors.hairline),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 13,
@@ -519,7 +519,7 @@ class _ReceiptLine extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: AppColors.foreground,
@@ -527,7 +527,7 @@ class _ReceiptLine extends StatelessWidget {
                 ),
                 Text(
                   qty,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppColors.mutedForeground,
                   ),
@@ -537,7 +537,7 @@ class _ReceiptLine extends StatelessWidget {
           ),
           Text(
             mxn(total),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.foreground,

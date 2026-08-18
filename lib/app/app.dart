@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../core/data.dart';
 import '../core/mock_ai.dart';
 import '../core/store.dart';
+import '../core/theme_prefs.dart';
 import '../features/home/home_screen.dart';
 import '../features/hoy/hoy_screen.dart';
 import '../features/memoria/memoria_screen.dart';
@@ -22,11 +23,36 @@ import 'widgets/bottom_nav.dart';
 import 'widgets/composer.dart';
 import 'widgets/sheet.dart';
 
-class CarrotaApp extends StatelessWidget {
-  /// Ruta inicial: `/` si ya se completó el onboarding, `/onboarding` si no.
+class CarrotaApp extends StatefulWidget {
   final String initialLocation;
 
   const CarrotaApp({super.key, required this.initialLocation});
+
+  @override
+  State<CarrotaApp> createState() => _CarrotaAppState();
+}
+
+class _CarrotaAppState extends State<CarrotaApp> {
+  final _themePrefs = ThemePrefs();
+  bool _dark = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _themePrefs.isDark().then((value) {
+      if (!mounted) return;
+      setState(() {
+        _dark = value;
+        AppColors.isDark = value;
+      });
+    });
+  }
+
+  void _setDark(bool value) {
+    AppColors.isDark = value;
+    setState(() => _dark = value);
+    _themePrefs.setDark(value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +62,11 @@ class CarrotaApp extends StatelessWidget {
         title: 'Lumo · Carrota',
         debugShowCheckedModeBanner: false,
         theme: buildAppTheme(),
+        darkTheme: buildAppTheme(),
+        themeMode: _dark ? ThemeMode.dark : ThemeMode.light,
         routerConfig: AppRouter.create(
-          initialLocation: initialLocation,
-          shellBuilder: (_) => const _Shell(),
+          initialLocation: widget.initialLocation,
+          shellBuilder: (_) => _Shell(darkMode: _dark, onToggleTheme: _setDark),
         ),
       ),
     );
@@ -46,7 +74,10 @@ class CarrotaApp extends StatelessWidget {
 }
 
 class _Shell extends StatefulWidget {
-  const _Shell();
+  final bool darkMode;
+  final ValueChanged<bool> onToggleTheme;
+
+  const _Shell({required this.darkMode, required this.onToggleTheme});
 
   @override
   State<_Shell> createState() => _ShellState();
@@ -415,12 +446,14 @@ class _ShellState extends State<_Shell> {
                   AppTab.negocio => NegocioScreen(
                     onOpenProduct: _openProduct,
                     onOpenShopping: _openShopping,
+                    darkMode: widget.darkMode,
+                    onToggleTheme: widget.onToggleTheme,
                   ),
                   AppTab.tienda => const TiendaScreen(),
                 },
               ),
               Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border(top: BorderSide(color: AppColors.hairline)),
                 ),
                 child: Composer(

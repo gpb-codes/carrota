@@ -42,7 +42,7 @@ class _CartSheetState extends State<CartSheet> {
   Widget build(BuildContext context) {
     final store = LumoScope.of(context);
     if (store.cart.isEmpty) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.fromLTRB(16, 24, 16, 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -75,10 +75,7 @@ class _CartSheetState extends State<CartSheet> {
           const SizedBox(height: 4),
           Text(
             '${store.cartCount} productos listos para registrar',
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.mutedForeground,
-            ),
+            style: TextStyle(fontSize: 13, color: AppColors.mutedForeground),
           ),
           const SizedBox(height: 8),
           Container(
@@ -88,12 +85,12 @@ class _CartSheetState extends State<CartSheet> {
                 for (final line in store.cart) _CartLineRow(line: line),
                 Container(
                   padding: const EdgeInsets.all(14),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     border: Border(top: BorderSide(color: AppColors.hairline)),
                   ),
                   child: Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           'Total',
                           style: TextStyle(
@@ -104,7 +101,7 @@ class _CartSheetState extends State<CartSheet> {
                       ),
                       Text(
                         mxn(store.cartTotal),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                           color: AppColors.foreground,
@@ -116,7 +113,7 @@ class _CartSheetState extends State<CartSheet> {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -147,7 +144,7 @@ class _CartSheetState extends State<CartSheet> {
                 ),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           FilledButton(
             onPressed: _confirm,
             style: FilledButton.styleFrom(
@@ -164,7 +161,7 @@ class _CartSheetState extends State<CartSheet> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'El inventario y la caja se actualizan al instante.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 12, color: AppColors.mutedForeground),
@@ -187,7 +184,7 @@ class _CartLineRow extends StatelessWidget {
     if (p == null) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: AppColors.hairline)),
       ),
       child: Row(
@@ -200,7 +197,7 @@ class _CartLineRow extends StatelessWidget {
               children: [
                 Text(
                   p.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: AppColors.foreground,
@@ -209,7 +206,7 @@ class _CartLineRow extends StatelessWidget {
                 ),
                 Text(
                   '${mxn(p.price)} / ${p.unit}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppColors.mutedForeground,
                   ),
@@ -234,7 +231,7 @@ class _CartLineRow extends StatelessWidget {
                   child: Text(
                     '${line.qty}',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppColors.foreground,
@@ -254,7 +251,7 @@ class _CartLineRow extends StatelessWidget {
             child: Text(
               mxn(p.price * line.qty),
               textAlign: TextAlign.right,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: AppColors.foreground,

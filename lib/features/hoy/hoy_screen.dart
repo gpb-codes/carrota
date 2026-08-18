@@ -43,7 +43,7 @@ class HoyScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Así va Carrota hoy',
             style: TextStyle(
               fontSize: 24,
@@ -51,7 +51,7 @@ class HoyScreen extends StatelessWidget {
               color: AppColors.foreground,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text.rich(
             TextSpan(
               children: [
@@ -74,7 +74,7 @@ class HoyScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: cardDeco(radius: 20),
@@ -89,7 +89,7 @@ class HoyScreen extends StatelessWidget {
                     color: AppColors.mutedForeground.withValues(alpha: 0.9),
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -150,7 +150,7 @@ class HoyScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   topName,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     color: AppColors.foreground,
@@ -160,7 +160,7 @@ class HoyScreen extends StatelessWidget {
                                 const SizedBox(height: 2),
                                 Text(
                                   '$topQty unidades vendidas',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     color: AppColors.mutedForeground,
                                   ),
@@ -183,7 +183,7 @@ class HoyScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
                     TagChip('Resumen', tone: TagTone.ai),
                     SizedBox(width: 8),
@@ -201,7 +201,7 @@ class HoyScreen extends StatelessWidget {
                 Text.rich(
                   TextSpan(
                     children: [
-                      const TextSpan(
+                      TextSpan(
                         text: 'Llevas ',
                         style: TextStyle(
                           fontSize: 15,
@@ -258,7 +258,7 @@ class HoyScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Text(
             'PREGUNTAS',
             style: TextStyle(
@@ -290,7 +290,7 @@ class HoyScreen extends StatelessWidget {
                       decoration: cardDeco(radius: 20),
                       child: Text(
                         q,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: AppColors.foreground,
                         ),
@@ -323,7 +323,7 @@ class HoyScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -346,7 +346,7 @@ class HoyScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right_rounded,
                       color: AppColors.mutedForeground,
                     ),
@@ -394,11 +394,11 @@ class _PayRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 14, color: AppColors.foreground),
+            style: TextStyle(fontSize: 14, color: AppColors.foreground),
           ),
           Text(
             value,
-            style: const TextStyle(fontSize: 14, color: AppColors.foreground),
+            style: TextStyle(fontSize: 14, color: AppColors.foreground),
           ),
         ],
       ),
@@ -446,7 +446,7 @@ class _Sparkline extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(

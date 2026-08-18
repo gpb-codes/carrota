@@ -52,7 +52,7 @@ class ShareSheet extends StatelessWidget {
                   children: [
                     Text(
                       p?.name ?? '',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: AppColors.foreground,
@@ -60,7 +60,7 @@ class ShareSheet extends StatelessWidget {
                     ),
                     Text(
                       video.caption,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppColors.mutedForeground,
                       ),
@@ -91,8 +91,8 @@ class ShareSheet extends StatelessWidget {
             onTap: () => _done(context, 'Video enviado a Facebook'),
           ),
           const SizedBox(height: 8),
-          const Divider(color: AppColors.hairline, height: 1),
-          const SizedBox(height: 8),
+          Divider(color: AppColors.hairline, height: 1),
+          SizedBox(height: 8),
           _ShareRow(
             circleColor: AppColors.surface2,
             iconColor: AppColors.foreground,
@@ -153,13 +153,10 @@ class _ShareRow extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: AppColors.foreground,
-                ),
+                style: TextStyle(fontSize: 15, color: AppColors.foreground),
               ),
             ),
-            const Icon(
+            Icon(
               Icons.chevron_right_rounded,
               size: 18,
               color: AppColors.mutedForeground,

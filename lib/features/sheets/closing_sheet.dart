@@ -57,7 +57,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 8),
-                const Row(
+                Row(
                   children: [
                     LumoMark(size: 24),
                     SizedBox(width: 10),
@@ -104,7 +104,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 if (s != null && s.openAuth > 0)
                   Container(
                     padding: const EdgeInsets.all(14),
@@ -125,7 +125,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                         const SizedBox(height: 4),
                         Text(
                           '${s.openAuth} venta(s) con tarjeta no tienen código de autorización.',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             color: AppColors.foreground,
                           ),
@@ -143,7 +143,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                       Text.rich(
                         TextSpan(
                           children: [
-                            const TextSpan(
+                            TextSpan(
                               text: 'Según las ventas, deberías tener ',
                               style: TextStyle(
                                 fontSize: 14,
@@ -152,13 +152,13 @@ class _ClosingSheetState extends State<ClosingSheet> {
                             ),
                             TextSpan(
                               text: mxn(expected),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.foreground,
                               ),
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: ' en efectivo. ¿Cuánto contaste?',
                               style: TextStyle(
                                 fontSize: 14,
@@ -173,7 +173,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                         controller: _controller,
                         keyboardType: TextInputType.number,
                         onChanged: (_) => setState(() {}),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: AppColors.foreground,
@@ -199,7 +199,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -208,7 +208,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.foreground,
-                        side: const BorderSide(color: AppColors.hairline),
+                        side: BorderSide(color: AppColors.hairline),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 11,
@@ -217,7 +217,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Agregar nota',
                         style: TextStyle(fontSize: 14),
                       ),
@@ -226,7 +226,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.foreground,
-                        side: const BorderSide(color: AppColors.hairline),
+                        side: BorderSide(color: AppColors.hairline),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 11,
@@ -235,7 +235,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Revisar ventas',
                         style: TextStyle(fontSize: 14),
                       ),
@@ -290,7 +290,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Cierre guardado. El resumen del día y la memoria se actualizaron.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -299,7 +299,7 @@ class _ClosingSheetState extends State<ClosingSheet> {
                     color: AppColors.foreground,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 FilledButton(
                   onPressed: () => Navigator.of(context).pop(),
                   style: FilledButton.styleFrom(
@@ -355,7 +355,7 @@ class _ClosingMetric extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.foreground,

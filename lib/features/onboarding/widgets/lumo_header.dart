@@ -15,7 +15,7 @@ class LumoHeader extends StatelessWidget {
         children: [
           const LumoMark(size: 26),
           const SizedBox(width: 8),
-          const Text(
+          Text(
             'Lumo',
             style: TextStyle(
               fontSize: 14,
@@ -24,7 +24,7 @@ class LumoHeader extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          const Flexible(
+          Flexible(
             child: Text(
               'Conociendo tu negocio',
               maxLines: 1,

@@ -176,7 +176,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -199,7 +199,7 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right_rounded,
                       color: AppColors.mutedForeground,
                     ),
@@ -208,7 +208,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Center(
             child: Text(
               'Powered by Business OS',
@@ -233,7 +233,7 @@ class _Header extends StatelessWidget {
         Row(
           children: [
             const LumoMark(size: 20),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(
               'Lumo · Carrota',
               style: TextStyle(
@@ -261,7 +261,7 @@ class _Header extends StatelessWidget {
                   ),
                 ),
               ),
-              const TextSpan(
+              TextSpan(
                 text: ' Jorge.',
                 style: TextStyle(
                   fontSize: 30,
@@ -324,10 +324,7 @@ class _SuggestionChip extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 text,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.foreground,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.foreground),
               ),
             ],
           ),
@@ -372,7 +369,7 @@ class _MetricCard extends StatelessWidget {
                 height: 6,
                 decoration: BoxDecoration(shape: BoxShape.circle, color: dot),
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Text(
                 label.toUpperCase(),
                 style: TextStyle(
@@ -386,7 +383,7 @@ class _MetricCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
               color: AppColors.foreground,
@@ -395,10 +392,7 @@ class _MetricCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             sub,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.mutedForeground,
-            ),
+            style: TextStyle(fontSize: 12, color: AppColors.mutedForeground),
           ),
         ],
       ),
