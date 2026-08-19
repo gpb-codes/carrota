@@ -55,3 +55,4 @@ server/uploads/
 .playwright-mcp/
 /app-initial.png
 .opencode/openwork/inbox/
+server/uploads/
