@@ -388,6 +388,7 @@ class MyVideo {
   final int c2;
   final DateTime at;
   final String? filePath;
+  final bool synced;
 
   const MyVideo({
     required this.id,
@@ -399,7 +400,21 @@ class MyVideo {
     required this.c2,
     required this.at,
     this.filePath,
+    this.synced = false,
   });
+
+  MyVideo copyWith({String? filePath, bool? synced}) => MyVideo(
+    id: id,
+    productId: productId,
+    caption: caption,
+    hashtags: hashtags,
+    price: price,
+    c1: c1,
+    c2: c2,
+    at: at,
+    filePath: filePath ?? this.filePath,
+    synced: synced ?? this.synced,
+  );
 
   VideoProduct toVideo() => VideoProduct(
     productId: productId,
