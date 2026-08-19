@@ -6,6 +6,8 @@ import '../../core/store.dart';
 import '../sheets/cart_sheet.dart';
 import '../sheets/comments_sheet.dart';
 import '../sheets/share_sheet.dart';
+import 'my_videos_sheet.dart';
+import 'publish_video_sheet.dart';
 import 'video_recorder_sheet.dart';
 
 class TiendaScreen extends StatefulWidget {
@@ -28,9 +30,9 @@ class _TiendaScreenState extends State<TiendaScreen> {
 
   List<VideoProduct> _filtered(LumoStore store) {
     final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return videoFeed;
+    if (q.isEmpty) return store.feedVideos;
     return [
-      for (final v in videoFeed)
+      for (final v in store.feedVideos)
         if (_matches(v, store, q)) v,
     ];
   }
@@ -47,16 +49,24 @@ class _TiendaScreenState extends State<TiendaScreen> {
       MaterialPageRoute<void>(
         fullscreenDialog: true,
         builder: (_) => VideoRecorderSheet(
-          onRecorded: (video) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(
-                  behavior: SnackBarBehavior.floating,
-                  duration: const Duration(seconds: 2),
-                  content: Text('Video listo para publicar'),
-                ),
-              );
+          onRecorded: (video) async {
+            final published = await Navigator.of(context).push<bool>(
+              MaterialPageRoute<bool>(
+                fullscreenDialog: true,
+                builder: (_) => PublishVideoSheet(video: video),
+              ),
+            );
+            if (published == true && mounted) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  const SnackBar(
+                    behavior: SnackBarBehavior.floating,
+                    duration: Duration(seconds: 2),
+                    content: Text('Video publicado en tu tienda'),
+                  ),
+                );
+            }
           },
         ),
       ),
@@ -89,6 +99,23 @@ class _TiendaScreenState extends State<TiendaScreen> {
                     backgroundColor: Colors.black.withValues(alpha: 0.25),
                   ),
                   tooltip: 'Grabar un video',
+                ),
+                const SizedBox(width: 8),
+                Badge(
+                  isLabelVisible: store.myVideos.isNotEmpty,
+                  label: Text('${store.myVideos.length}'),
+                  child: IconButton(
+                    key: const ValueKey('my-videos-btn'),
+                    onPressed: () => showMyVideosSheet(context),
+                    icon: const Icon(
+                      Icons.video_library_rounded,
+                      color: Colors.white,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.black.withValues(alpha: 0.25),
+                    ),
+                    tooltip: 'Mis videos',
+                  ),
                 ),
                 if (items.isNotEmpty) ...[
                   const SizedBox(width: 8),
@@ -373,6 +400,29 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
               ),
             ),
             Positioned.fill(child: GestureDetector(onDoubleTap: _onDoubleTap)),
+            if (video.mine)
+              Positioned(
+                top: 16,
+                left: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text(
+                    'Tuyo',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
             IgnorePointer(
               child: Center(
                 child: FadeTransition(
