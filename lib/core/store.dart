@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 
@@ -182,20 +183,64 @@ class LumoStore extends ChangeNotifier {
   }) {
     final pair =
         myVideoPalette[productId.hashCode.abs() % myVideoPalette.length];
-    myVideos.insert(
-      0,
-      MyVideo(
-        id: 'vid_${DateTime.now().microsecondsSinceEpoch}',
-        productId: productId,
-        caption: caption,
-        hashtags: hashtags,
-        price: price,
-        c1: pair.c1,
-        c2: pair.c2,
-        at: DateTime.now(),
-        filePath: filePath,
-      ),
+    final video = MyVideo(
+      id: 'vid_${DateTime.now().microsecondsSinceEpoch}',
+      productId: productId,
+      caption: caption,
+      hashtags: hashtags,
+      price: price,
+      c1: pair.c1,
+      c2: pair.c2,
+      at: DateTime.now(),
+      filePath: filePath,
     );
+    myVideos.insert(0, video);
+    notifyListeners();
+    if (serverOnline) unawaited(_syncPublish(video));
+  }
+
+  Future<void> _syncPublish(MyVideo video) async {
+    try {
+      String? url;
+      final path = video.filePath;
+      if (path != null && path.isNotEmpty) {
+        url = await api.uploadVideo(
+          await File(path).readAsBytes(),
+          filename: 'video.mp4',
+        );
+        if (url == null) return;
+      }
+      final status = await api.createVideo(
+        productId: video.productId,
+        caption: video.caption,
+        hashtags: video.hashtags,
+        c1: video.c1,
+        c2: video.c2,
+        url: url,
+      );
+      if (status == 200 || status == 201) {
+        _markSynced(video.id);
+        return;
+      }
+      if (status == 409) {
+        final ok = await api.updateVideo(
+          video.productId,
+          caption: video.caption,
+          hashtags: video.hashtags,
+          c1: video.c1,
+          c2: video.c2,
+        );
+        if (ok) _markSynced(video.id);
+      }
+    } catch (_) {
+      // sin conexión: el video queda local y se reintenta en otro arranque
+    }
+  }
+
+  void _markSynced(String id) {
+    final i = myVideos.indexWhere((m) => m.id == id);
+    if (i < 0) return;
+    myVideos[i] = myVideos[i].copyWith(synced: true);
     notifyListeners();
   }
 
@@ -208,7 +253,7 @@ class LumoStore extends ChangeNotifier {
     final i = myVideos.indexWhere((m) => m.id == id);
     if (i < 0) return;
     final old = myVideos[i];
-    myVideos[i] = MyVideo(
+    final updated = MyVideo(
       id: old.id,
       productId: old.productId,
       caption: caption ?? old.caption,
@@ -217,13 +262,77 @@ class LumoStore extends ChangeNotifier {
       c1: old.c1,
       c2: old.c2,
       at: old.at,
+      filePath: old.filePath,
+      synced: old.synced,
     );
+    myVideos[i] = updated;
     notifyListeners();
+    if (updated.synced) unawaited(_syncUpdate(updated));
+  }
+
+  Future<void> _syncUpdate(MyVideo video) async {
+    try {
+      await api.updateVideo(
+        video.productId,
+        caption: video.caption,
+        hashtags: video.hashtags,
+        c1: video.c1,
+        c2: video.c2,
+      );
+    } catch (_) {
+      // sin conexión: los cambios quedan locales
+    }
   }
 
   void removeMyVideo(String id) {
-    myVideos.removeWhere((m) => m.id == id);
+    final i = myVideos.indexWhere((m) => m.id == id);
+    if (i < 0) return;
+    final removed = myVideos[i];
+    myVideos.removeAt(i);
     notifyListeners();
+    if (removed.synced) unawaited(_syncDelete(removed));
+  }
+
+  Future<void> _syncDelete(MyVideo video) async {
+    try {
+      await api.deleteVideo(video.productId);
+    } catch (_) {
+      // sin conexión: el video queda localmente eliminado
+    }
+  }
+
+  /// Trae del servidor los videos del negocio y los mezcla con los locales.
+  Future<void> refreshMyVideos() async {
+    try {
+      final mine = await api.fetchMyVideos();
+      final known = {for (final m in myVideos) m.productId};
+      for (final v in mine) {
+        final id = v['productId'] as String?;
+        if (id == null || known.contains(id)) continue;
+        if (productById(id) == null) continue;
+        final c1 = (v['c1'] as num?)?.toInt() ?? 0xFF7BC26B;
+        final c2 = (v['c2'] as num?)?.toInt() ?? 0xFF24663A;
+        myVideos.insert(
+          0,
+          MyVideo(
+            id: 'vid_remote_$id',
+            productId: id,
+            caption: (v['caption'] as String?) ?? '',
+            hashtags: ((v['hashtags'] as List?) ?? const [])
+                .map((t) => t.toString())
+                .toList(),
+            price: (v['price'] as num?)?.toInt() ?? 0,
+            c1: c1,
+            c2: c2,
+            at: DateTime.now(),
+            synced: true,
+          ),
+        );
+      }
+      notifyListeners();
+    } catch (_) {
+      // servidor no disponible: se mantiene solo lo local
+    }
   }
 
   Product? productById(String id) {
@@ -282,6 +391,7 @@ class LumoStore extends ChangeNotifier {
       await _hydrateEvents();
       await _hydrateShopping();
       await refreshSummary();
+      await refreshMyVideos();
     }
     _apiLoaded = true;
     notifyListeners();

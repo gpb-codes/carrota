@@ -136,6 +136,95 @@ class ApiClient {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchMyVideos() async {
+    final data = await _get('/api/videos/mine');
+    return ((data?['videos'] as List?) ?? const [])
+        .cast<Map<String, dynamic>>();
+  }
+
+  /// Sube el archivo de video y devuelve la URL absoluta servida por el API
+  /// (o null si falla).
+  Future<String?> uploadVideo(
+    List<int> bytes, {
+    required String filename,
+  }) async {
+    try {
+      final res = await http
+          .post(
+            Uri.parse('$baseUrl/api/videos/upload'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'filename': filename,
+              'data': base64Encode(bytes),
+            }),
+          )
+          .timeout(_timeout);
+      if (res.statusCode < 200 || res.statusCode >= 300) return null;
+      final body = jsonDecode(res.body) as Map<String, dynamic>;
+      final url = body['url'] as String?;
+      return url == null ? null : '$baseUrl$url';
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Crea el video en el servidor (o 409 si ya existe uno para el producto).
+  Future<int> createVideo({
+    required String productId,
+    required String caption,
+    required List<String> hashtags,
+    required int c1,
+    required int c2,
+    String? url,
+  }) async {
+    try {
+      final res = await http
+          .post(
+            Uri.parse('$baseUrl/api/videos'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'productId': productId,
+              'caption': caption,
+              'hashtags': hashtags,
+              'c1': c1,
+              'c2': c2,
+              'url': url,
+            }),
+          )
+          .timeout(_timeout);
+      return res.statusCode;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  Future<bool> updateVideo(
+    String productId, {
+    required String caption,
+    required List<String> hashtags,
+    required int c1,
+    required int c2,
+  }) async {
+    try {
+      return await _put('/api/videos/$productId', {
+        'caption': caption,
+        'hashtags': hashtags,
+        'c1': c1,
+        'c2': c2,
+      });
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> deleteVideo(String productId) async {
+    try {
+      return await _delete('/api/videos/$productId');
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<String?> registerSale(Map<String, dynamic> sale) async {
     try {
       final res = await http
