@@ -48,6 +48,7 @@ app.*.map.json
 server/data.db
 server/data.db-*
 server/*.sqlite
+server/uploads/
 
 # Session/test artifacts
 /opencode/
