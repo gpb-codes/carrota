@@ -178,6 +178,7 @@ class LumoStore extends ChangeNotifier {
     required String caption,
     required List<String> hashtags,
     required int price,
+    String? filePath,
   }) {
     final pair =
         myVideoPalette[productId.hashCode.abs() % myVideoPalette.length];
@@ -192,6 +193,7 @@ class LumoStore extends ChangeNotifier {
         c1: pair.c1,
         c2: pair.c2,
         at: DateTime.now(),
+        filePath: filePath,
       ),
     );
     notifyListeners();

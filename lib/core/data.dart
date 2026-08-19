@@ -363,6 +363,7 @@ class VideoProduct {
   final int c2;
   final int likes;
   final bool mine;
+  final String? filePath;
 
   const VideoProduct({
     required this.productId,
@@ -372,6 +373,7 @@ class VideoProduct {
     required this.c2,
     required this.likes,
     this.mine = false,
+    this.filePath,
   });
 }
 
@@ -385,6 +387,7 @@ class MyVideo {
   final int c1;
   final int c2;
   final DateTime at;
+  final String? filePath;
 
   const MyVideo({
     required this.id,
@@ -395,6 +398,7 @@ class MyVideo {
     required this.c1,
     required this.c2,
     required this.at,
+    this.filePath,
   });
 
   VideoProduct toVideo() => VideoProduct(
@@ -405,6 +409,7 @@ class MyVideo {
     c2: c2,
     likes: 0,
     mine: true,
+    filePath: filePath,
   );
 }
 

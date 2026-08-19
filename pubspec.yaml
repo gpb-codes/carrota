@@ -39,6 +39,7 @@ dependencies:
   speech_to_text: ^7.0.0
   shared_preferences: ^2.5.5
   go_router: ^17.5.0
+  video_player: ^2.14.0
 
 dev_dependencies:
   flutter_test:
