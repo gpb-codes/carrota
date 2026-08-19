@@ -114,6 +114,7 @@ class _PublishVideoSheetState extends State<PublishVideoSheet> {
         caption: caption,
         hashtags: _chips,
         price: price,
+        filePath: widget.video?.path,
       );
     }
     Navigator.of(context).pop(true);

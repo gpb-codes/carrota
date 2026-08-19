@@ -200,4 +200,31 @@ void main() {
     expect(find.text('Mi primer video'), findsOneWidget);
     expect(find.text('1 / ${store.feedVideos.length}'), findsOneWidget);
   });
+
+  testWidgets(
+    'un video con archivo no disponible cae al fondo degradado sin romperse',
+    (tester) async {
+      final store = LumoStore();
+      store.publishVideo(
+        productId: store.products.first.id,
+        caption: 'Video con archivo',
+        hashtags: const [],
+        price: 20,
+        filePath: 'ruta/inexistente.mp4',
+      );
+
+      await tester.pumpWidget(
+        LumoScope(
+          store: store,
+          child: const MaterialApp(home: Scaffold(body: TiendaScreen())),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Tuyo'), findsOneWidget);
+      expect(find.text('Video con archivo'), findsOneWidget);
+    },
+  );
 }
