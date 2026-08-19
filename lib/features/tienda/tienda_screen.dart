@@ -6,6 +6,7 @@ import '../../core/store.dart';
 import '../sheets/cart_sheet.dart';
 import '../sheets/comments_sheet.dart';
 import '../sheets/share_sheet.dart';
+import 'video_recorder_sheet.dart';
 
 class TiendaScreen extends StatefulWidget {
   const TiendaScreen({super.key});
@@ -41,6 +42,27 @@ class _TiendaScreenState extends State<TiendaScreen> {
     return name.contains(q);
   }
 
+  void _openRecorder() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => VideoRecorderSheet(
+          onRecorded: (video) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                  content: Text('Video listo para publicar'),
+                ),
+              );
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final store = LumoScope.of(context);
@@ -57,6 +79,16 @@ class _TiendaScreenState extends State<TiendaScreen> {
                     controller: _searchController,
                     onChanged: (v) => setState(() => _query = v),
                   ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  key: const ValueKey('record-btn'),
+                  onPressed: _openRecorder,
+                  icon: const Icon(Icons.videocam_rounded, color: Colors.white),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.black.withValues(alpha: 0.25),
+                  ),
+                  tooltip: 'Grabar un video',
                 ),
                 if (items.isNotEmpty) ...[
                   const SizedBox(width: 8),

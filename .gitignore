@@ -54,3 +54,4 @@ server/*.sqlite
 .playwright-mcp/
 /app-initial.png
 .opencode/openwork/inbox/
+server/uploads/
