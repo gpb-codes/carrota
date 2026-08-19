@@ -21,10 +21,14 @@
 
 const http = require('node:http');
 const path = require('node:path');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
 
 const PORT = Number(process.env.PORT) || 4000;
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data.db');
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
+const MAX_UPLOAD_BYTES = Number(process.env.MAX_UPLOAD_BYTES) || 30 * 1024 * 1024;
 const LUMO_API_KEY = process.env.LUMO_API_KEY || '';
 const LUMO_BASE_URL = process.env.LUMO_BASE_URL || 'https://api.openai.com/v1';
 const LUMO_MODEL = process.env.LUMO_MODEL || 'gpt-4o-mini';
@@ -42,7 +46,8 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS videos (
     product_id TEXT PRIMARY KEY REFERENCES products(id),
     caption TEXT NOT NULL, hashtags TEXT NOT NULL,
-    c1 INTEGER NOT NULL, c2 INTEGER NOT NULL, base_likes INTEGER NOT NULL
+    c1 INTEGER NOT NULL, c2 INTEGER NOT NULL, base_likes INTEGER NOT NULL,
+    url TEXT, owner TEXT, created_at TEXT
   );
 
   CREATE TABLE IF NOT EXISTS video_state (
@@ -102,6 +107,11 @@ const ensureColumn = (table, column, ddl) => {
 };
 ensureColumn('products', 'barcode', 'barcode TEXT');
 ensureColumn('sales', 'created_at', 'created_at TEXT');
+ensureColumn('videos', 'url', 'url TEXT');
+ensureColumn('videos', 'owner', 'owner TEXT');
+ensureColumn('videos', 'created_at', 'created_at TEXT');
+
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const H = 3600 * 1000;
 const DAY = 24 * H;
@@ -138,7 +148,8 @@ const seed = () => {
     'INSERT INTO products (id, name, unit, price, stock, emoji, supplier, avg_daily, barcode) VALUES (?,?,?,?,?,?,?,?,?)');
   for (const p of products) insert.run(...p);
 
-  const insertV = db.prepare('INSERT INTO videos VALUES (?,?,?,?,?,?)');
+  const insertV = db.prepare(
+    'INSERT INTO videos (product_id, caption, hashtags, c1, c2, base_likes) VALUES (?,?,?,?,?,?)');
   for (const v of videos) insertV.run(...v);
 
   const insertC = db.prepare(
@@ -227,33 +238,44 @@ const productById = (id) => db.prepare('SELECT * FROM products WHERE id = ?').ge
 const productName = (id) => productById(id)?.name || id;
 const stockOf = (id) => productById(id)?.stock || 0;
 
-const feed = () => {
-  const rows = db
-    .prepare(`SELECT p.*, v.caption, v.hashtags, v.c1, v.c2, v.base_likes,
-                     COALESCE(s.liked, 0) AS liked, COALESCE(s.saved, 0) AS saved
-              FROM videos v JOIN products p ON p.id = v.product_id
-              LEFT JOIN video_state s ON s.product_id = v.product_id
-              ORDER BY v.base_likes DESC`)
-    .all();
-  const commentCount = db.prepare('SELECT COUNT(*) AS n FROM comments WHERE product_id = ?');
-  return rows.map((r) => ({
-    productId: r.id,
-    name: r.name,
-    unit: r.unit,
-    price: r.price,
-    stock: r.stock,
-    emoji: r.emoji,
-    supplier: r.supplier,
-    caption: r.caption,
-    hashtags: r.hashtags.split(','),
-    c1: r.c1,
-    c2: r.c2,
-    likes: r.base_likes + r.liked,
-    comments: commentCount.get(r.id).n,
-    liked: r.liked === 1,
-    saved: r.saved === 1,
-  }));
+const VIDEO_SELECT = `SELECT p.*, v.caption, v.hashtags, v.c1, v.c2, v.base_likes,
+                             v.url, v.owner, v.created_at,
+                             COALESCE(s.liked, 0) AS liked, COALESCE(s.saved, 0) AS saved
+                      FROM videos v JOIN products p ON p.id = v.product_id
+                      LEFT JOIN video_state s ON s.product_id = v.product_id`;
+
+const commentCount = db.prepare('SELECT COUNT(*) AS n FROM comments WHERE product_id = ?');
+
+const rowToVideo = (r) => ({
+  productId: r.id,
+  name: r.name,
+  unit: r.unit,
+  price: r.price,
+  stock: r.stock,
+  emoji: r.emoji,
+  supplier: r.supplier,
+  caption: r.caption,
+  hashtags: r.hashtags ? r.hashtags.split(',') : [],
+  c1: r.c1,
+  c2: r.c2,
+  likes: r.base_likes + r.liked,
+  comments: commentCount.get(r.id).n,
+  liked: r.liked === 1,
+  saved: r.saved === 1,
+  url: r.url,
+  owner: r.owner,
+  createdAt: r.created_at,
+});
+
+const videoRow = (id) => db.prepare(`${VIDEO_SELECT} WHERE v.product_id = ?`).get(id);
+
+const videoPayload = (id) => {
+  const r = videoRow(id);
+  return r ? rowToVideo(r) : null;
 };
+
+const feed = () =>
+  db.prepare(`${VIDEO_SELECT} ORDER BY v.base_likes DESC`).all().map(rowToVideo);
 
 const cartItems = () =>
   db
@@ -457,12 +479,12 @@ function send(res, code, body) {
   res.end(payload);
 }
 
-function readBody(req) {
+function readBody(req, limit = 1e6) {
   return new Promise((resolve, reject) => {
     let raw = '';
     req.on('data', (c) => {
       raw += c;
-      if (raw.length > 1e6) reject(new Error('body too large'));
+      if (raw.length > limit) reject(new Error('body too large'));
     });
     req.on('end', () => {
       try {
@@ -474,6 +496,32 @@ function readBody(req) {
     req.on('error', reject);
   });
 }
+
+// ---------- subida de archivos (videos de la tienda) ----------
+
+const UPLOAD_EXTS = new Set(['mp4', 'webm', 'mov', 'm4v']);
+const MIME_BY_EXT = {
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  mov: 'video/quicktime',
+  m4v: 'video/mp4',
+};
+
+const extOf = (filename) => {
+  const m = String(filename || '').toLowerCase().match(/\.([a-z0-9]+)$/);
+  return m && UPLOAD_EXTS.has(m[1]) ? m[1] : null;
+};
+
+const saveUpload = (base64, filename) => {
+  const ext = extOf(filename);
+  if (!ext) return { error: `unsupported extension (allowed: ${[...UPLOAD_EXTS].join(', ')})` };
+  const buf = Buffer.from(String(base64 || ''), 'base64');
+  if (buf.length === 0) return { error: 'empty file' };
+  if (buf.length > MAX_UPLOAD_BYTES) return { error: `file too large (max ${Math.round(MAX_UPLOAD_BYTES / 1e6)} MB)` };
+  const name = `vid_${Date.now().toString(36)}_${crypto.randomBytes(3).toString('hex')}.${ext}`;
+  fs.writeFileSync(path.join(UPLOAD_DIR, name), buf);
+  return { url: `/uploads/${name}` };
+};
 
 const routes = [
   // ---------- salud ----------
@@ -526,6 +574,95 @@ const routes = [
     return {
       comment: { id: r.lastInsertRowid, author, initial, text, ago: 'ahora' },
     };
+  }],
+
+  // ---------- tienda: CRUD de videos del negocio ----------
+
+  ['GET', /^\/api\/videos\/mine$/, async () => ({
+    videos: db
+      .prepare(`${VIDEO_SELECT} WHERE v.owner = 'owner' ORDER BY v.created_at DESC`)
+      .all()
+      .map(rowToVideo),
+  })],
+
+  ['POST', /^\/api\/videos\/upload$/, async (body) => {
+    const r = saveUpload(body.data, body.filename);
+    if (r.error) return { error: r.error };
+    return { url: r.url };
+  }],
+
+  ['POST', /^\/api\/videos$/, async (body) => {
+    let pid = String(body.productId || '');
+    if (pid) {
+      if (!productById(pid)) return { error: 'unknown product', status: 404 };
+    } else {
+      const p = body.product;
+      if (!p || !p.id || !p.name) {
+        return { error: 'productId or product {id, name, unit, price, stock, emoji} required' };
+      }
+      if (productById(p.id)) return { error: 'product already exists', status: 409 };
+      pid = String(p.id);
+      db.prepare('INSERT INTO products (id, name, unit, price, stock, emoji, supplier) VALUES (?,?,?,?,?,?,?)')
+        .run(pid, String(p.name), String(p.unit || 'pieza'),
+          Math.max(0, parseInt(p.price, 10) || 0), Math.max(0, parseInt(p.stock, 10) || 0),
+          String(p.emoji || '📦'), p.supplier ? String(p.supplier) : null);
+    }
+    if (videoExists(pid)) return { error: 'video already exists for this product', status: 409 };
+    const caption = String(body.caption || '').trim();
+    if (!caption) return { error: 'caption required' };
+    const hashtags = Array.isArray(body.hashtags)
+      ? body.hashtags.map(String).join(',')
+      : String(body.hashtags || '').split(',').map((t) => t.trim()).filter(Boolean).join(',');
+    const c1 = parseInt(body.c1, 10) || 0xFF7BC26B;
+    const c2 = parseInt(body.c2, 10) || 0xFF24663A;
+    const url = body.url ? String(body.url) : null;
+    const owner = body.owner === 'seed' ? 'seed' : 'owner';
+    db.prepare('INSERT INTO videos (product_id, caption, hashtags, c1, c2, base_likes, url, owner, created_at) VALUES (?,?,?,?,?,0,?,?,?)')
+      .run(pid, caption, hashtags, c1, c2, url, owner, new Date().toISOString());
+    addEvent('tl', 'Publicaste un video en la Tienda.', caption, 'Tienda');
+    return { video: videoPayload(pid) };
+  }],
+
+  ['GET', /^\/api\/videos\/([^/]+)$/, async (_, m) => {
+    const v = videoPayload(m[1]);
+    if (!v) return { error: 'video not found', status: 404 };
+    return { video: v };
+  }],
+
+  ['PUT', /^\/api\/videos\/([^/]+)$/, async (body, m) => {
+    const id = m[1];
+    if (!videoExists(id)) return { error: 'video not found', status: 404 };
+    const sets = [];
+    const vals = [];
+    if (body.caption !== undefined) { sets.push('caption = ?'); vals.push(String(body.caption)); }
+    if (body.hashtags !== undefined) {
+      sets.push('hashtags = ?');
+      vals.push(Array.isArray(body.hashtags) ? body.hashtags.map(String).join(',') : String(body.hashtags));
+    }
+    if (body.c1 !== undefined) { sets.push('c1 = ?'); vals.push(parseInt(body.c1, 10)); }
+    if (body.c2 !== undefined) { sets.push('c2 = ?'); vals.push(parseInt(body.c2, 10)); }
+    if (body.url !== undefined) { sets.push('url = ?'); vals.push(body.url === null ? null : String(body.url)); }
+    if (sets.length) db.prepare(`UPDATE videos SET ${sets.join(', ')} WHERE product_id = ?`).run(...vals, id);
+    const psets = [];
+    const pvals = [];
+    if (body.name !== undefined) { psets.push('name = ?'); pvals.push(String(body.name)); }
+    if (body.unit !== undefined) { psets.push('unit = ?'); pvals.push(String(body.unit)); }
+    if (body.emoji !== undefined) { psets.push('emoji = ?'); pvals.push(String(body.emoji)); }
+    if (body.supplier !== undefined) { psets.push('supplier = ?'); pvals.push(body.supplier === null ? null : String(body.supplier)); }
+    if (body.price !== undefined) { psets.push('price = ?'); pvals.push(Math.max(0, parseInt(body.price, 10) || 0)); }
+    if (body.stock !== undefined) { psets.push('stock = ?'); pvals.push(Math.max(0, parseInt(body.stock, 10) || 0)); }
+    if (psets.length) db.prepare(`UPDATE products SET ${psets.join(', ')} WHERE id = ?`).run(...pvals, id);
+    return { video: videoPayload(id) };
+  }],
+
+  ['DELETE', /^\/api\/videos\/([^/]+)$/, async (_, m) => {
+    const id = m[1];
+    if (!videoExists(id)) return { error: 'video not found', status: 404 };
+    db.prepare('DELETE FROM videos WHERE product_id = ?').run(id);
+    db.prepare('DELETE FROM video_state WHERE product_id = ?').run(id);
+    db.prepare('DELETE FROM comments WHERE product_id = ?').run(id);
+    addEvent('tl', 'Quitaste un video de la Tienda.', null, 'Tienda');
+    return { ok: true };
   }],
 
   // ---------- carrito ----------
@@ -828,6 +965,17 @@ const server = http.createServer(async (req, res) => {
     });
     return res.end();
   }
+  if (req.method === 'GET' && url.startsWith('/uploads/')) {
+    const name = path.basename(url);
+    const file = path.join(UPLOAD_DIR, name);
+    if (!name || !fs.existsSync(file)) return send(res, 404, { error: 'not found' });
+    const ext = name.split('.').pop();
+    res.writeHead(200, {
+      'Content-Type': MIME_BY_EXT[ext] || 'application/octet-stream',
+      'Access-Control-Allow-Origin': '*',
+    });
+    return fs.createReadStream(file).pipe(res);
+  }
   try {
     for (const [method, pattern, handler] of routes) {
       if (req.method !== method) continue;
@@ -835,10 +983,12 @@ const server = http.createServer(async (req, res) => {
       if (!m) continue;
       let body = {};
       if (req.method === 'POST' || req.method === 'PUT') {
+        const limit = url === '/api/videos/upload' ? MAX_UPLOAD_BYTES * 2 : 1e6;
         try {
-          body = await readBody(req);
-        } catch {
-          return send(res, 400, { error: 'invalid JSON body' });
+          body = await readBody(req, limit);
+        } catch (e) {
+          const tooLarge = e.message === 'body too large';
+          return send(res, tooLarge ? 413 : 400, { error: tooLarge ? 'body too large' : 'invalid JSON body' });
         }
       }
       const result = await handler(body, m, req.url);

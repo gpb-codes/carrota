@@ -307,3 +307,108 @@ test('ruta desconocida → 404 y JSON inválido → 400', async () => {
   });
   assert.equal(res.status, 400);
 });
+
+test('videos: crear con producto nuevo, aparece en feed y en mine', async () => {
+  const created = await (await send('/api/videos', {
+    body: {
+      product: { id: 'fresas', name: 'Fresa', unit: 'caja', price: 45, stock: 10, emoji: '🍓' },
+      caption: 'Fresas dulces de Milpa Verde.',
+      hashtags: ['#fresa', '#fresco'],
+      c1: 0xFFE5533D,
+      c2: 0xFF8F1D10,
+    },
+  })).json();
+  assert.equal(created.video.productId, 'fresas');
+  assert.equal(created.video.owner, 'owner');
+  assert.deepEqual(created.video.hashtags, ['#fresa', '#fresco']);
+  assert.equal(created.video.url, null);
+
+  const feedBody = await (await get('/api/feed')).json();
+  const inFeed = feedBody.videos.find((v) => v.productId === 'fresas');
+  assert.ok(inFeed, 'el video nuevo debe aparecer en el feed');
+  assert.equal(inFeed.price, 45);
+  assert.equal(inFeed.owner, 'owner');
+
+  const mine = await (await get('/api/videos/mine')).json();
+  assert.ok(mine.videos.some((v) => v.productId === 'fresas'), 'debe listarse en mine');
+  const seeds = mine.videos.filter((v) => v.owner !== 'owner');
+  assert.equal(seeds.length, 0, 'mine solo lista videos del negocio');
+});
+
+test('videos: crear enlazando producto existente y validaciones', async () => {
+  const linked = await (await send('/api/videos', {
+    body: { productId: 'espinaca', caption: 'Espinaca lista para ensaladas.' },
+  })).json();
+  assert.equal(linked.video.productId, 'espinaca');
+  assert.equal(linked.video.name, 'Espinaca');
+
+  const dup = await send('/api/videos', { body: { productId: 'espinaca', caption: 'otra' } });
+  assert.equal(dup.status, 409);
+
+  const noProduct = await send('/api/videos', { body: { productId: 'nope', caption: 'x' } });
+  assert.equal(noProduct.status, 404);
+
+  const noCaption = await send('/api/videos', { body: { productId: 'cilantro' } });
+  assert.equal(noCaption.status, 400);
+
+  const noBody = await send('/api/videos', { body: {} });
+  assert.equal(noBody.status, 400);
+});
+
+test('videos: editar video y producto enlazado, y detalle por id', async () => {
+  const upd = await (await send('/api/videos/espinaca', {
+    method: 'PUT',
+    body: { caption: 'Espinaca orgánica de Huerto Norte.', hashtags: '#espinaca,#organica', price: 32, stock: 20 },
+  })).json();
+  assert.equal(upd.video.caption, 'Espinaca orgánica de Huerto Norte.');
+  assert.deepEqual(upd.video.hashtags, ['#espinaca', '#organica']);
+  assert.equal(upd.video.price, 32, 'el precio se actualiza en el producto');
+  assert.equal(upd.video.stock, 20);
+
+  const detail = await (await get('/api/videos/espinaca')).json();
+  assert.equal(detail.video.productId, 'espinaca');
+  assert.equal((await get('/api/videos/nope')).status, 404);
+});
+
+test('videos: eliminar limpia video, estado y comentarios', async () => {
+  await send('/api/videos/espinaca/like');
+  await send('/api/videos/espinaca/comments', { body: { text: 'prueba' } });
+
+  const del = await (await send('/api/videos/espinaca', { method: 'DELETE' })).json();
+  assert.equal(del.ok, true);
+  assert.equal((await get('/api/videos/espinaca')).status, 404);
+  assert.equal((await send('/api/videos/espinaca', { method: 'DELETE' })).status, 404);
+
+  const feedAfter = await (await get('/api/feed')).json();
+  assert.ok(!feedAfter.videos.some((v) => v.productId === 'espinaca'));
+
+  const prod = await (await get('/api/products/espinaca')).json();
+  assert.equal(prod.product.price, 32, 'el producto sobrevive al borrado del video');
+});
+
+test('videos: subir archivo, servirlo y validar extensiones', async () => {
+  const payload = Buffer.from('fake-mp4-content').toString('base64');
+  const up = await (await send('/api/videos/upload', {
+    body: { filename: 'clip.mp4', data: payload },
+  })).json();
+  assert.ok(up.url, 'debe devolver una url');
+  assert.match(up.url, /^\/uploads\/vid_[a-z0-9_]+\.mp4$/);
+
+  const file = await fetch(`${base}${up.url}`);
+  assert.equal(file.status, 200);
+  assert.equal(file.headers.get('content-type'), 'video/mp4');
+  assert.equal(await file.text(), 'fake-mp4-content');
+
+  const evil = await (await send('/api/videos/upload', {
+    body: { filename: '../../afuera.mp4', data: payload },
+  })).json();
+  assert.match(evil.url, /^\/uploads\/vid_[a-z0-9_]+\.mp4$/, 'el nombre no debe depender del cliente');
+
+  const badExt = await send('/api/videos/upload', { body: { filename: 'x.exe', data: payload } });
+  assert.equal(badExt.status, 400);
+
+  const empty = await send('/api/videos/upload', { body: { filename: 'x.mp4', data: '' } });
+  assert.equal(empty.status, 400);
+
+  assert.equal((await get('/uploads/no-existe.mp4')).status, 404);
+});
