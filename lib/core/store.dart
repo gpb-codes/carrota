@@ -166,6 +166,66 @@ class LumoStore extends ChangeNotifier {
   int commentCountFor(String productId) =>
       videoComments[productId]?.length ?? 0;
 
+  final List<MyVideo> myVideos = [];
+
+  List<VideoProduct> get feedVideos => [
+    for (final m in myVideos) m.toVideo(),
+    ...videoFeed,
+  ];
+
+  void publishVideo({
+    required String productId,
+    required String caption,
+    required List<String> hashtags,
+    required int price,
+    String? filePath,
+  }) {
+    final pair =
+        myVideoPalette[productId.hashCode.abs() % myVideoPalette.length];
+    myVideos.insert(
+      0,
+      MyVideo(
+        id: 'vid_${DateTime.now().microsecondsSinceEpoch}',
+        productId: productId,
+        caption: caption,
+        hashtags: hashtags,
+        price: price,
+        c1: pair.c1,
+        c2: pair.c2,
+        at: DateTime.now(),
+        filePath: filePath,
+      ),
+    );
+    notifyListeners();
+  }
+
+  void updateMyVideo(
+    String id, {
+    String? caption,
+    List<String>? hashtags,
+    int? price,
+  }) {
+    final i = myVideos.indexWhere((m) => m.id == id);
+    if (i < 0) return;
+    final old = myVideos[i];
+    myVideos[i] = MyVideo(
+      id: old.id,
+      productId: old.productId,
+      caption: caption ?? old.caption,
+      hashtags: hashtags ?? old.hashtags,
+      price: price ?? old.price,
+      c1: old.c1,
+      c2: old.c2,
+      at: old.at,
+    );
+    notifyListeners();
+  }
+
+  void removeMyVideo(String id) {
+    myVideos.removeWhere((m) => m.id == id);
+    notifyListeners();
+  }
+
   Product? productById(String id) {
     for (final p in products) {
       if (p.id == id) return p;

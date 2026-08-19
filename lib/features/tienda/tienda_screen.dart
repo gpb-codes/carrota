@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../app/theme.dart';
 import '../../core/data.dart';
@@ -6,6 +9,8 @@ import '../../core/store.dart';
 import '../sheets/cart_sheet.dart';
 import '../sheets/comments_sheet.dart';
 import '../sheets/share_sheet.dart';
+import 'my_videos_sheet.dart';
+import 'publish_video_sheet.dart';
 import 'video_recorder_sheet.dart';
 
 class TiendaScreen extends StatefulWidget {
@@ -28,9 +33,9 @@ class _TiendaScreenState extends State<TiendaScreen> {
 
   List<VideoProduct> _filtered(LumoStore store) {
     final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return videoFeed;
+    if (q.isEmpty) return store.feedVideos;
     return [
-      for (final v in videoFeed)
+      for (final v in store.feedVideos)
         if (_matches(v, store, q)) v,
     ];
   }
@@ -47,16 +52,24 @@ class _TiendaScreenState extends State<TiendaScreen> {
       MaterialPageRoute<void>(
         fullscreenDialog: true,
         builder: (_) => VideoRecorderSheet(
-          onRecorded: (video) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(
-                  behavior: SnackBarBehavior.floating,
-                  duration: const Duration(seconds: 2),
-                  content: Text('Video listo para publicar'),
-                ),
-              );
+          onRecorded: (video) async {
+            final published = await Navigator.of(context).push<bool>(
+              MaterialPageRoute<bool>(
+                fullscreenDialog: true,
+                builder: (_) => PublishVideoSheet(video: video),
+              ),
+            );
+            if (published == true && mounted) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  const SnackBar(
+                    behavior: SnackBarBehavior.floating,
+                    duration: Duration(seconds: 2),
+                    content: Text('Video publicado en tu tienda'),
+                  ),
+                );
+            }
           },
         ),
       ),
@@ -89,6 +102,23 @@ class _TiendaScreenState extends State<TiendaScreen> {
                     backgroundColor: Colors.black.withValues(alpha: 0.25),
                   ),
                   tooltip: 'Grabar un video',
+                ),
+                const SizedBox(width: 8),
+                Badge(
+                  isLabelVisible: store.myVideos.isNotEmpty,
+                  label: Text('${store.myVideos.length}'),
+                  child: IconButton(
+                    key: const ValueKey('my-videos-btn'),
+                    onPressed: () => showMyVideosSheet(context),
+                    icon: const Icon(
+                      Icons.video_library_rounded,
+                      color: Colors.white,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.black.withValues(alpha: 0.25),
+                    ),
+                    tooltip: 'Mis videos',
+                  ),
                 ),
                 if (items.isNotEmpty) ...[
                   const SizedBox(width: 8),
@@ -250,12 +280,55 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
     vsync: this,
     duration: const Duration(milliseconds: 350),
   );
+  VideoPlayerController? _player;
+  bool _videoFailed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final path = widget.video.filePath;
+    if (path != null && path.isNotEmpty) {
+      _initPlayer(path);
+    }
+  }
+
+  Future<void> _initPlayer(String path) async {
+    final controller = VideoPlayerController.file(File(path));
+    _player = controller;
+    try {
+      await controller.initialize();
+      if (!mounted) {
+        await controller.dispose();
+        return;
+      }
+      await controller.setLooping(true);
+      await controller.play();
+      if (mounted) setState(() {});
+    } catch (_) {
+      if (mounted) {
+        setState(() => _videoFailed = true);
+      } else {
+        await controller.dispose();
+      }
+    }
+  }
+
+  void _togglePlay() {
+    final player = _player;
+    if (player == null || !player.value.isInitialized) return;
+    if (player.value.isPlaying) {
+      player.pause();
+    } else {
+      player.play();
+    }
+  }
 
   @override
   void dispose() {
     _pulse.dispose();
     _burst.dispose();
     _pop.dispose();
+    _player?.dispose();
     super.dispose();
   }
 
@@ -316,63 +389,98 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
         final t = _pulse.value;
         final c1 = Color(video.c1);
         final c2 = Color(video.c2);
+        final player = _player;
+        final playing =
+            player != null && player.value.isInitialized && !_videoFailed;
         return Stack(
           fit: StackFit.expand,
           children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [c1, Color.lerp(c1, c2, t)!],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-            ),
-            Positioned.fill(
-              child: DecoratedBox(
+            if (playing)
+              Positioned.fill(child: VideoPlayer(player))
+            else ...[
+              DecoratedBox(
                 decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    radius: 1.2,
-                    colors: [
-                      Colors.white.withValues(alpha: 0.22),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.15, 0.6],
+                  gradient: LinearGradient(
+                    colors: [c1, Color.lerp(c1, c2, t)!],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
                 ),
               ),
-            ),
-            Center(
-              child: Transform.translate(
-                offset: Offset(0, -34 - 16 * t),
-                child: Transform.scale(
-                  scale: 1 + 0.05 * t,
-                  child: Container(
-                    width: 230,
-                    height: 230,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.20),
-                          blurRadius: 50,
-                          spreadRadius: 6,
-                          offset: const Offset(0, 14),
-                        ),
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      radius: 1.2,
+                      colors: [
+                        Colors.white.withValues(alpha: 0.22),
+                        Colors.transparent,
                       ],
+                      stops: const [0.15, 0.6],
                     ),
-                    child: Center(
-                      child: Text(
-                        p.emoji,
-                        style: const TextStyle(fontSize: 96, height: 1),
+                  ),
+                ),
+              ),
+              Center(
+                child: Transform.translate(
+                  offset: Offset(0, -34 - 16 * t),
+                  child: Transform.scale(
+                    scale: 1 + 0.05 * t,
+                    child: Container(
+                      width: 230,
+                      height: 230,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.18),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.20),
+                            blurRadius: 50,
+                            spreadRadius: 6,
+                            offset: const Offset(0, 14),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          p.emoji,
+                          style: const TextStyle(fontSize: 96, height: 1),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
+            ],
+            Positioned.fill(
+              child: GestureDetector(
+                onDoubleTap: _onDoubleTap,
+                onTap: _togglePlay,
+              ),
             ),
-            Positioned.fill(child: GestureDetector(onDoubleTap: _onDoubleTap)),
+            if (video.mine)
+              Positioned(
+                top: 16,
+                left: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text(
+                    'Tuyo',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
             IgnorePointer(
               child: Center(
                 child: FadeTransition(

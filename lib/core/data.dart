@@ -362,6 +362,8 @@ class VideoProduct {
   final int c1;
   final int c2;
   final int likes;
+  final bool mine;
+  final String? filePath;
 
   const VideoProduct({
     required this.productId,
@@ -370,8 +372,55 @@ class VideoProduct {
     required this.c1,
     required this.c2,
     required this.likes,
+    this.mine = false,
+    this.filePath,
   });
 }
+
+/// A video published by the shop owner (own content in the Tienda).
+class MyVideo {
+  final String id;
+  final String productId;
+  final String caption;
+  final List<String> hashtags;
+  final int price;
+  final int c1;
+  final int c2;
+  final DateTime at;
+  final String? filePath;
+
+  const MyVideo({
+    required this.id,
+    required this.productId,
+    required this.caption,
+    required this.hashtags,
+    required this.price,
+    required this.c1,
+    required this.c2,
+    required this.at,
+    this.filePath,
+  });
+
+  VideoProduct toVideo() => VideoProduct(
+    productId: productId,
+    caption: caption,
+    hashtags: hashtags,
+    c1: c1,
+    c2: c2,
+    likes: 0,
+    mine: true,
+    filePath: filePath,
+  );
+}
+
+/// Gradient pairs for videos published by the shop owner.
+const myVideoPalette = <({int c1, int c2})>[
+  (c1: 0xFF9BC94C, c2: 0xFF2F6B2F),
+  (c1: 0xFFE5533D, c2: 0xFF8F1D10),
+  (c1: 0xFFF5D23C, c2: 0xFFC77D0F),
+  (c1: 0xFF4CC2FF, c2: 0xFF1D4F8F),
+  (c1: 0xFFE96BA8, c2: 0xFF7A2D55),
+];
 
 class VideoComment {
   final String author;
