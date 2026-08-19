@@ -1,7 +1,7 @@
 {
   "name": "carrota-server",
-  "version": "1.1.0",
-  "description": "API de Carrota: feed de la Tienda, likes, comentarios, guardados, carrito, ventas, inventario, entregas, resumen, insights y cierre.",
+  "version": "1.2.0",
+  "description": "API de Carrota: feed de la Tienda, likes, comentarios, guardados, carrito, CRUD de videos del negocio, ventas, inventario, entregas, resumen, insights y cierre.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

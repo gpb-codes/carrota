@@ -18,6 +18,8 @@ con datos de ejemplo. Variables de entorno:
 | --- | --- | --- |
 | `PORT` | `4000` | Puerto (`0` = puerto aleatorio) |
 | `DB_PATH` | `./data.db` | Ruta del archivo SQLite |
+| `UPLOAD_DIR` | `./uploads` | Carpeta de videos subidos |
+| `MAX_UPLOAD_BYTES` | `30 MB` | Tamaño máximo por archivo subido |
 
 ## Tests
 
@@ -35,11 +37,23 @@ npm test                # node --test (usa una DB temporal)
 ### Tienda (feed, likes, comentarios)
 | Método | Ruta | Descripción |
 | --- | --- | --- |
-| GET | `/api/feed` | Feed de videos (stock, likes, comentarios, liked/saved) |
+| GET | `/api/feed` | Feed de videos (stock, likes, comentarios, liked/saved, url, owner) |
 | POST | `/api/videos/:id/like` | Alterna like |
 | POST | `/api/videos/:id/save` | Alterna guardado |
 | GET | `/api/videos/:id/comments` | Lista comentarios |
 | POST | `/api/videos/:id/comments` | Agrega comentario `{text}` |
+
+### Tienda (CRUD de videos del negocio)
+| Método | Ruta | Descripción |
+| --- | --- | --- |
+| GET | `/api/videos/mine` | Videos publicados por el negocio (owner) |
+| POST | `/api/videos/upload` | Sube el archivo `{filename, data(base64)}` y devuelve `{url}` |
+| POST | `/api/videos` | Crea video: `{productId}` (existente) o `{product: {id, name, unit, price, stock, emoji}}` + `{caption, hashtags, c1, c2, url}` |
+| GET | `/api/videos/:id` | Detalle del video con métricas |
+| PUT | `/api/videos/:id` | Edita caption/hashtags/colores/url y campos del producto (name, price, stock, unit, emoji, supplier) |
+| DELETE | `/api/videos/:id` | Elimina video, estado y comentarios (el producto sobrevive) |
+
+`GET /uploads/:file` sirve los archivos subidos (solo extensiones `mp4`, `webm`, `mov`, `m4v`; el nombre se genera en el server).
 
 ### Carrito
 | Método | Ruta | Descripción |
