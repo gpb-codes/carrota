@@ -167,6 +167,119 @@ class LumoStore extends ChangeNotifier {
   int commentCountFor(String productId) =>
       videoComments[productId]?.length ?? 0;
 
+  final Set<String> favorites = {};
+
+  final List<String> recentlyViewed = [];
+
+  final List<Coupon> coupons = [...seedCoupons];
+
+  Coupon? appliedCoupon;
+
+  final Map<String, int> ratingSum = {
+    'aguacate': 27,
+    'tomate': 15,
+    'lechuga': 8,
+    'limon': 5,
+  };
+
+  final Map<String, int> ratingCount = {
+    'aguacate': 6,
+    'tomate': 3,
+    'lechuga': 2,
+    'limon': 1,
+  };
+
+  final Map<String, List<Review>> reviews = {
+    for (final e in seedReviews.entries) e.key: [...e.value],
+  };
+
+  bool isFavorite(String productId) => favorites.contains(productId);
+
+  void toggleFavorite(String productId) {
+    if (!favorites.remove(productId)) {
+      favorites.add(productId);
+    }
+    notifyListeners();
+  }
+
+  void noteViewed(String productId) {
+    recentlyViewed
+      ..remove(productId)
+      ..insert(0, productId);
+    if (recentlyViewed.length > 12) {
+      recentlyViewed.removeRange(12, recentlyViewed.length);
+    }
+    notifyListeners();
+  }
+
+  double ratingFor(String productId) {
+    final sum = ratingSum[productId] ?? 0;
+    final count = ratingCount[productId] ?? 0;
+    return count == 0 ? 0 : sum / count;
+  }
+
+  int ratingCountFor(String productId) => ratingCount[productId] ?? 0;
+
+  void rateProduct(String productId, int stars) {
+    ratingSum[productId] = (ratingSum[productId] ?? 0) + stars;
+    ratingCount[productId] = (ratingCount[productId] ?? 0) + 1;
+    notifyListeners();
+  }
+
+  bool applyCoupon(String code) {
+    final c = code.trim().toUpperCase();
+    for (final coupon in coupons) {
+      if (coupon.code == c) {
+        appliedCoupon = coupon;
+        notifyListeners();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void clearCoupon() {
+    if (appliedCoupon == null) return;
+    appliedCoupon = null;
+    notifyListeners();
+  }
+
+  int get cartDiscount =>
+      appliedCoupon == null ? 0 : cartTotal * appliedCoupon!.percent ~/ 100;
+
+  int get cartPayable => cartTotal - cartDiscount;
+
+  List<({Product product, int units})> get topSellers {
+    final units = <String, int>{...seedTopSellers};
+    for (final sale in _confirmedSales) {
+      for (final l in sale.lines) {
+        units[l.productId] = (units[l.productId] ?? 0) + l.qty;
+      }
+    }
+    final list = [
+      for (final e in units.entries)
+        if (productById(e.key) != null)
+          (product: productById(e.key)!, units: e.value),
+    ]..sort((a, b) => b.units.compareTo(a.units));
+    return list;
+  }
+
+  List<Product> relatedTo(String productId) {
+    final p = productById(productId);
+    if (p == null) return const [];
+    final sameSupplier = [
+      for (final x in products)
+        if (x.id != productId && x.supplier != null && x.supplier == p.supplier)
+          x,
+    ];
+    if (sameSupplier.length >= 2) return sameSupplier.take(6).toList();
+    final rest = [
+      for (final x in products)
+        if (x.id != productId && !sameSupplier.contains(x)) x,
+    ];
+    return [...sameSupplier, ...rest].take(6).toList();
+  }
+
   final List<MyVideo> myVideos = [];
 
   List<VideoProduct> get feedVideos => [
@@ -809,12 +922,13 @@ class LumoStore extends ChangeNotifier {
 
   Sale? registerCartSale({PaymentMethod payment = PaymentMethod.efectivo}) {
     if (cart.isEmpty) return null;
+    final coupon = appliedCoupon;
     final sale = Sale(
       id: uid(),
       lines: [
         for (final l in cart) SaleLine(productId: l.productId, qty: l.qty),
       ],
-      total: cartTotal,
+      total: cartPayable,
       payment: payment,
       at: _now(),
     );
@@ -829,10 +943,13 @@ class LumoStore extends ChangeNotifier {
           'Venta por ${mxn(sale.total)}',
           'Inventario actualizado',
           'Pago con ${_payName(payment)}',
+          if (coupon != null)
+            'Cupón ${coupon.code} (-${mxn(cartTotal - sale.total)})',
         ],
       ),
     );
     clearCart();
+    clearCoupon();
     return sale;
   }
 
@@ -857,6 +974,20 @@ class LumoStore extends ChangeNotifier {
           v.productId: [...(videoCommentsSeed[v.productId] ?? const [])],
       });
     onboarded = false;
+    favorites.clear();
+    recentlyViewed.clear();
+    appliedCoupon = null;
+    ratingSum
+      ..clear()
+      ..addAll({'aguacate': 27, 'tomate': 15, 'lechuga': 8, 'limon': 5});
+    ratingCount
+      ..clear()
+      ..addAll({'aguacate': 6, 'tomate': 3, 'lechuga': 2, 'limon': 1});
+    reviews
+      ..clear()
+      ..addAll({
+        for (final e in seedReviews.entries) e.key: [...e.value],
+      });
     serverOnline = false;
     _apiLoaded = false;
     _commentsLoaded.clear();

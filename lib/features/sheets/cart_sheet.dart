@@ -22,6 +22,23 @@ class CartSheet extends StatefulWidget {
 
 class _CartSheetState extends State<CartSheet> {
   PaymentMethod _method = PaymentMethod.efectivo;
+  final _couponCtrl = TextEditingController();
+  String? _couponError;
+
+  @override
+  void dispose() {
+    _couponCtrl.dispose();
+    super.dispose();
+  }
+
+  void _applyCoupon() {
+    final store = LumoScope.of(context);
+    final ok = store.applyCoupon(_couponCtrl.text);
+    setState(() {
+      _couponError = ok ? null : 'Cupón no válido. Prueba FRESCO10.';
+      if (ok) _couponCtrl.clear();
+    });
+  }
 
   void _confirm() {
     final store = LumoScope.of(context);
@@ -88,30 +105,86 @@ class _CartSheetState extends State<CartSheet> {
                   decoration: BoxDecoration(
                     border: Border(top: BorderSide(color: AppColors.hairline)),
                   ),
-                  child: Row(
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: Text(
-                          'Total',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: AppColors.mutedForeground,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Subtotal',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: AppColors.mutedForeground,
+                              ),
+                            ),
                           ),
-                        ),
+                          Text(
+                            mxn(store.cartTotal),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.foreground,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        mxn(store.cartTotal),
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.foreground,
+                      if (store.appliedCoupon != null) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Cupón ${store.appliedCoupon!.code} (-${store.appliedCoupon!.percent}%)',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '-${mxn(store.cartDiscount)}',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ],
                         ),
+                      ],
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Total',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: AppColors.mutedForeground,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            mxn(store.cartPayable),
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.foreground,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
               ],
             ),
+          ),
+          SizedBox(height: 14),
+          _CouponBar(
+            controller: _couponCtrl,
+            error: _couponError,
+            onApply: _applyCoupon,
           ),
           SizedBox(height: 14),
           Wrap(
@@ -279,6 +352,126 @@ class _StepBtn extends StatelessWidget {
         padding: const EdgeInsets.all(6),
         child: Icon(icon, size: 16, color: AppColors.primary),
       ),
+    );
+  }
+}
+
+class _CouponBar extends StatelessWidget {
+  final TextEditingController controller;
+  final String? error;
+  final VoidCallback onApply;
+
+  const _CouponBar({
+    required this.controller,
+    required this.error,
+    required this.onApply,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final store = LumoScope.of(context);
+    final coupon = store.appliedCoupon;
+    if (coupon != null) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: cardDeco(radius: 16),
+        child: Row(
+          children: [
+            Icon(
+              Icons.confirmation_number_rounded,
+              size: 18,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Cupón ${coupon.code} aplicado',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  Text(
+                    coupon.label,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.mutedForeground,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: store.clearCoupon,
+              icon: const Icon(Icons.close_rounded, size: 18),
+              color: AppColors.mutedForeground,
+              tooltip: 'Quitar cupón',
+            ),
+          ],
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: controller,
+                style: TextStyle(fontSize: 13, color: AppColors.foreground),
+                textCapitalization: TextCapitalization.characters,
+                decoration: InputDecoration(
+                  hintText: '¿Tienes un cupón?',
+                  hintStyle: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.mutedForeground,
+                  ),
+                  isDense: true,
+                  filled: true,
+                  fillColor: AppColors.surface2,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                ),
+                onSubmitted: (_) => onApply(),
+              ),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton(
+              onPressed: onApply,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                side: BorderSide(color: AppColors.primary),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Aplicar', style: TextStyle(fontSize: 13)),
+            ),
+          ],
+        ),
+        if (error != null) ...[
+          const SizedBox(height: 6),
+          Text(error!, style: TextStyle(fontSize: 12, color: AppColors.danger)),
+        ] else ...[
+          const SizedBox(height: 6),
+          Text(
+            'Prueba: FRESCO10 · VERDE20 · HOGAR15',
+            style: TextStyle(fontSize: 11, color: AppColors.mutedForeground),
+          ),
+        ],
+      ],
     );
   }
 }

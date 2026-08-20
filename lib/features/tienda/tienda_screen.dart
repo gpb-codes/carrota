@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../app/theme.dart';
+import '../../app/widgets/sheet.dart';
 import '../../core/data.dart';
 import '../../core/store.dart';
 import '../sheets/cart_sheet.dart';
 import '../sheets/comments_sheet.dart';
+import '../sheets/product_sheet.dart';
 import '../sheets/share_sheet.dart';
 import 'my_videos_sheet.dart';
 import 'publish_video_sheet.dart';
@@ -20,10 +22,13 @@ class TiendaScreen extends StatefulWidget {
   State<TiendaScreen> createState() => _TiendaScreenState();
 }
 
+enum _FeedSection { todo, favoritos, recientes, top }
+
 class _TiendaScreenState extends State<TiendaScreen> {
   final _searchController = TextEditingController();
   String _query = '';
   int _page = 0;
+  _FeedSection _section = _FeedSection.todo;
 
   @override
   void dispose() {
@@ -33,12 +38,38 @@ class _TiendaScreenState extends State<TiendaScreen> {
 
   List<VideoProduct> _filtered(LumoStore store) {
     final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return store.feedVideos;
-    return [
-      for (final v in store.feedVideos)
-        if (_matches(v, store, q)) v,
-    ];
+    final byQuery = q.isEmpty
+        ? store.feedVideos
+        : [
+            for (final v in store.feedVideos)
+              if (_matches(v, store, q)) v,
+          ];
+    return switch (_section) {
+      _FeedSection.todo => byQuery,
+      _FeedSection.favoritos => [
+        for (final v in byQuery)
+          if (store.isFavorite(v.productId)) v,
+      ],
+      _FeedSection.recientes => [
+        for (final v in byQuery)
+          if (store.recentlyViewed.contains(v.productId)) v,
+      ],
+      _FeedSection.top => [
+        for (final v in byQuery)
+          if (store.topSellers.any((t) => t.product.id == v.productId)) v,
+      ],
+    };
   }
+
+  String get _emptyMessage => switch (_section) {
+    _FeedSection.todo => 'Sin resultados para "$_query"',
+    _FeedSection.favoritos =>
+      'Aún no tienes favoritos. Toca el corazón en un producto para guardarlo aquí.',
+    _FeedSection.recientes =>
+      'Todavía no has visto productos. Ábrelos desde el catálogo y aparecerán aquí.',
+    _FeedSection.top =>
+      'Aún no hay ventas para armar el ranking. Registra tu primera venta.',
+  };
 
   bool _matches(VideoProduct v, LumoStore store, String q) {
     if (v.caption.toLowerCase().contains(q)) return true;
@@ -160,9 +191,40 @@ class _TiendaScreenState extends State<TiendaScreen> {
             ),
           ),
         ),
+        SizedBox(
+          height: 40,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              for (final s in _FeedSection.values) ...[
+                ChoiceChip(
+                  label: Text(_sectionLabel(s)),
+                  selected: _section == s,
+                  onSelected: (_) => setState(() => _section = s),
+                  showCheckmark: false,
+                  visualDensity: VisualDensity.compact,
+                  selectedColor: Colors.white,
+                  backgroundColor: Colors.black.withValues(alpha: 0.25),
+                  side: BorderSide(
+                    color: _section == s
+                        ? Colors.white
+                        : Colors.white.withValues(alpha: 0.35),
+                  ),
+                  labelStyle: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: _section == s ? AppColors.foreground : Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+            ],
+          ),
+        ),
         Expanded(
           child: items.isEmpty
-              ? _EmptySearch(query: _query)
+              ? _EmptySearch(message: _emptyMessage)
               : PageView.builder(
                   scrollDirection: Axis.vertical,
                   itemCount: items.length,
@@ -217,9 +279,9 @@ class _SearchField extends StatelessWidget {
 }
 
 class _EmptySearch extends StatelessWidget {
-  final String query;
+  final String message;
 
-  const _EmptySearch({required this.query});
+  const _EmptySearch({required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -236,7 +298,7 @@ class _EmptySearch extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Sin resultados para "$query"',
+              message,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -382,6 +444,7 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
     final likes = store.videoLikes[video.productId] ?? 0;
     final comments = store.commentCountFor(video.productId);
     final lowStock = p.stock <= 5;
+    final related = store.relatedTo(video.productId);
 
     return AnimatedBuilder(
       animation: _pulse,
@@ -641,6 +704,77 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
                                   ),
                               ],
                             ),
+                            if (related.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              SizedBox(
+                                height: 36,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: related.length,
+                                  separatorBuilder: (_, _) =>
+                                      const SizedBox(width: 6),
+                                  itemBuilder: (context, i) {
+                                    final r = related[i];
+                                    return InkWell(
+                                      onTap: () => showAppSheet(
+                                        context,
+                                        title: r.name,
+                                        builder: (_) =>
+                                            ProductSheet(productId: r.id),
+                                      ),
+                                      borderRadius: BorderRadius.circular(999),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.18,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            999,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.3,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              r.emoji,
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              r.name,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              mxn(r.price),
+                                              style: const TextStyle(
+                                                color: Colors.white70,
+                                                fontSize: 11,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
                             SizedBox(height: 12),
                             SizedBox(
                               height: 46,
@@ -780,3 +914,11 @@ String _k(int n) {
   if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)} k';
   return '$n';
 }
+
+String _sectionLabel(_FeedSection s) => switch (s) {
+  _FeedSection.todo => 'Todo',
+  _FeedSection.favoritos => 'Favoritos',
+  _FeedSection.recientes => 'Recientes',
+  _FeedSection.top => 'Más vendidos',
+};
+
