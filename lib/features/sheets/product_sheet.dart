@@ -486,4 +486,3 @@ class _ProductMetric extends StatelessWidget {
     );
   }
 }
-

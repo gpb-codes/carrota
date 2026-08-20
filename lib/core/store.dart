@@ -195,6 +195,26 @@ class LumoStore extends ChangeNotifier {
 
   bool isFavorite(String productId) => favorites.contains(productId);
 
+  final Set<String> following = {};
+
+  bool isFollowing(String supplier) => following.contains(supplier);
+
+  void toggleFollow(String supplier) {
+    if (!following.remove(supplier)) {
+      following.add(supplier);
+    }
+    notifyListeners();
+  }
+
+  final Map<String, int> videoViews = {...seedVideoViews};
+
+  int viewsFor(String productId) => videoViews[productId] ?? 0;
+
+  void noteVideoView(String productId) {
+    videoViews[productId] = viewsFor(productId) + 1;
+    notifyListeners();
+  }
+
   void toggleFavorite(String productId) {
     if (!favorites.remove(productId)) {
       favorites.add(productId);
@@ -975,6 +995,10 @@ class LumoStore extends ChangeNotifier {
       });
     onboarded = false;
     favorites.clear();
+    following.clear();
+    videoViews
+      ..clear()
+      ..addAll(seedVideoViews);
     recentlyViewed.clear();
     appliedCoupon = null;
     ratingSum
