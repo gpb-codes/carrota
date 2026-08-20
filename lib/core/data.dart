@@ -437,6 +437,70 @@ const myVideoPalette = <({int c1, int c2})>[
   (c1: 0xFFE96BA8, c2: 0xFF7A2D55),
 ];
 
+class Coupon {
+  final String code;
+  final String label;
+  final int percent;
+
+  const Coupon({
+    required this.code,
+    required this.label,
+    required this.percent,
+  });
+}
+
+const seedCoupons = [
+  Coupon(code: 'FRESCO10', label: '10% en toda la tienda', percent: 10),
+  Coupon(code: 'VERDE20', label: '20% en frutas y verduras', percent: 20),
+  Coupon(code: 'HOGAR15', label: '15% en canasta básica', percent: 15),
+];
+
+class Review {
+  final String author;
+  final String text;
+  final int stars;
+
+  const Review({required this.author, required this.text, required this.stars});
+}
+
+const seedReviews = <String, List<Review>>{
+  'aguacate': [
+    Review(
+      author: 'María',
+      text: 'Cremoso y delicioso, llegó perfecto.',
+      stars: 5,
+    ),
+    Review(author: 'Pedro', text: 'Buen precio por kilo.', stars: 4),
+  ],
+  'tomate': [
+    Review(
+      author: 'Ana',
+      text: 'Muy frescos para la salsa de la semana.',
+      stars: 5,
+    ),
+  ],
+  'lechuga': [
+    Review(
+      author: 'Luis',
+      text: 'Crujiente, se mantiene toda la semana.',
+      stars: 4,
+    ),
+  ],
+};
+
+/// Unidades base vendidas (demo) para el ranking de más vendidos;
+/// se suman a las ventas confirmadas de la sesión.
+const seedTopSellers = <String, int>{
+  'aguacate': 34,
+  'tomate': 28,
+  'limon': 19,
+  'lechuga': 12,
+  'jamaica': 9,
+  'pepino': 7,
+  'cilantro': 5,
+  'fresa': 4,
+};
+
 class VideoComment {
   final String author;
   final String initial;
