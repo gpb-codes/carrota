@@ -344,10 +344,15 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
   );
   VideoPlayerController? _player;
   bool _videoFailed = false;
+  bool _muted = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      LumoScope.of(context).noteVideoView(widget.video.productId);
+    });
     final path = widget.video.filePath;
     if (path != null && path.isNotEmpty) {
       _initPlayer(path);
@@ -383,6 +388,23 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
     } else {
       player.play();
     }
+  }
+
+  void _toggleMute() {
+    setState(() => _muted = !_muted);
+    final player = _player;
+    if (player != null && player.value.isInitialized) {
+      player.setVolume(_muted ? 0 : 1);
+    }
+  }
+
+  void _openFullscreen() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => _FullscreenVideoPage(video: widget.video),
+      ),
+    );
   }
 
   @override
@@ -445,6 +467,9 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
     final comments = store.commentCountFor(video.productId);
     final lowStock = p.stock <= 5;
     final related = store.relatedTo(video.productId);
+    final views = store.viewsFor(video.productId);
+    final supplier = p.supplier;
+    final following = supplier != null && store.isFollowing(supplier);
 
     return AnimatedBuilder(
       animation: _pulse,
@@ -521,29 +546,103 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
                 onTap: _togglePlay,
               ),
             ),
-            if (video.mine)
-              Positioned(
-                top: 16,
-                left: 16,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.35),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: const Text(
-                    'Tuyo',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+            Positioned(
+              top: 16,
+              left: 16,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (video.mine) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: const Text(
+                        'Tuyo',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  if (likes >= 1000) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: const Text(
+                        '🔥 En tendencia',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.35),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.visibility_outlined,
+                          size: 14,
+                          color: Colors.white70,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          '${_k(views)} vistas',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                ],
+              ),
+            ),
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Material(
+                color: Colors.black.withValues(alpha: 0.35),
+                shape: const CircleBorder(),
+                child: IconButton(
+                  onPressed: _toggleMute,
+                  icon: Icon(
+                    _muted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                  tooltip: _muted ? 'Activar sonido' : 'Silenciar',
                 ),
               ),
+            ),
             IgnorePointer(
               child: Center(
                 child: FadeTransition(
@@ -608,6 +707,89 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            if (player != null &&
+                                player.value.isInitialized &&
+                                !_videoFailed) ...[
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(2),
+                                child: SizedBox(
+                                  height: 2,
+                                  child: VideoProgressIndicator(
+                                    player,
+                                    allowScrubbing: false,
+                                    colors: const VideoProgressColors(
+                                      playedColor: Colors.white,
+                                      bufferedColor: Colors.white24,
+                                      backgroundColor: Colors.white12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 14,
+                                  backgroundColor: Colors.white.withValues(
+                                    alpha: 0.22,
+                                  ),
+                                  child: Text(
+                                    (supplier ?? 'P')
+                                        .substring(0, 1)
+                                        .toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    supplier ?? 'Proveedor',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (supplier != null)
+                                  GestureDetector(
+                                    onTap: () => store.toggleFollow(supplier),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: following
+                                            ? Colors.white.withValues(
+                                                alpha: 0.22,
+                                              )
+                                            : Colors.white,
+                                        borderRadius: BorderRadius.circular(
+                                          999,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        following ? 'Siguiendo' : 'Seguir',
+                                        style: TextStyle(
+                                          color: following
+                                              ? Colors.white
+                                              : AppColors.foreground,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
                             Row(
                               children: [
                                 Flexible(
@@ -844,6 +1026,13 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
                             label: 'Compartir',
                             onTap: () => showShareSheet(context, video: video),
                           ),
+                          const SizedBox(height: 18),
+                          _RailAction(
+                            icon: Icons.fullscreen_rounded,
+                            color: Colors.white,
+                            label: 'Pantalla',
+                            onTap: _openFullscreen,
+                          ),
                         ],
                       ),
                     ],
@@ -854,6 +1043,150 @@ class _VideoPageState extends State<_VideoPage> with TickerProviderStateMixin {
           ],
         );
       },
+    );
+  }
+}
+
+class _FullscreenVideoPage extends StatefulWidget {
+  final VideoProduct video;
+
+  const _FullscreenVideoPage({required this.video});
+
+  @override
+  State<_FullscreenVideoPage> createState() => _FullscreenVideoPageState();
+}
+
+class _FullscreenVideoPageState extends State<_FullscreenVideoPage> {
+  VideoPlayerController? _player;
+  bool _failed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final path = widget.video.filePath;
+    if (path != null && path.isNotEmpty) _init(path);
+  }
+
+  Future<void> _init(String path) async {
+    final controller = VideoPlayerController.file(File(path));
+    _player = controller;
+    try {
+      await controller.initialize();
+      await controller.setLooping(true);
+      await controller.play();
+      if (mounted) setState(() {});
+    } catch (_) {
+      _failed = true;
+      if (mounted) setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _player?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final store = LumoScope.of(context);
+    final p = store.productById(widget.video.productId);
+    final player = _player;
+    final showVideo = player != null && player.value.isInitialized && !_failed;
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (showVideo)
+            VideoPlayer(player)
+          else
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(widget.video.c1), Color(widget.video.c2)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  p?.emoji ?? '🎬',
+                  style: const TextStyle(fontSize: 96),
+                ),
+              ),
+            ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (p != null)
+                    Text(
+                      mxn(p.price),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          if (p != null)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(20, 30, 20, 24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.6),
+                    ],
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      p.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.video.caption,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -921,4 +1254,3 @@ String _sectionLabel(_FeedSection s) => switch (s) {
   _FeedSection.recientes => 'Recientes',
   _FeedSection.top => 'Más vendidos',
 };
-

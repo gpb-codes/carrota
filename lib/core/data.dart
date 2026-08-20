@@ -501,6 +501,16 @@ const seedTopSellers = <String, int>{
   'fresa': 4,
 };
 
+/// Vistas acumuladas (demo) por video del feed; la sesión las incrementa.
+const seedVideoViews = <String, int>{
+  'aguacate': 15400,
+  'tomate': 9800,
+  'limon': 4200,
+  'lechuga': 3100,
+  'mermelada': 1900,
+  'zanahoria': 2600,
+};
+
 class VideoComment {
   final String author;
   final String initial;
