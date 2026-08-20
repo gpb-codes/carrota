@@ -15,7 +15,7 @@ class ApiClient {
     const fromEnv = String.fromEnvironment('API_URL');
     if (fromEnv.isNotEmpty) return fromEnv;
     if (kIsWeb) return 'http://localhost:4000';
-    return 'http://192.168.1.33:4000';
+    return 'http://192.168.1.199:4000';
   }
 
   Future<Map<String, dynamic>?> _get(String path) async {

@@ -25,7 +25,7 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
 
-const PORT = Number(process.env.PORT) || 4000;
+const PORT = Number(process.env.PORT) ?? 4000;
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data.db');
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 const MAX_UPLOAD_BYTES = Number(process.env.MAX_UPLOAD_BYTES) || 30 * 1024 * 1024;

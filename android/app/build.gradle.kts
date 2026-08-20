@@ -43,3 +43,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // camera_android_camerax necesita esta clase al compilar con JDK 21.
+    implementation("androidx.concurrent:concurrent-futures:1.2.0")
+}
